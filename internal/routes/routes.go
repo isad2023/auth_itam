@@ -44,24 +44,41 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Tags User
 	// @Accept json
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "login"}
+	// @Param login body models.LoginRequest true "Login credentials"
+	// @Success 200 {object} map[string]string{"token": "your-jwt-token"}
+	// @Failure 400 {object} map[string]string{"error": "Invalid request"}
+	// @Failure 401 {object} map[string]string{"error": "Unauthorized"}
+	// @Failure 500 {object} map[string]string{"error": "Internal server error"}
 	// @Router /api/login [post]
-	router.POST("/api/login", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "login",
-		})
+	router.POST("/api/login", func(ctx *gin.Context) {
+		handlers.Login(ctx, storage)
+	})
+
+	// @Summary Регистрация нового пользователя
+	// @Description Регистрация нового пользователя в системе
+	// @Tags User
+	// @Accept json
+	// @Produce json
+	// @Param register body models.RegisterRequest true "User registration details"
+	// @Success 201 {object} map[string]string{"message": "User registered successfully"}
+	// @Failure 400 {object} map[string]string{"error": "Invalid request"}
+	// @Failure 500 {object} map[string]string{"error": "Internal server error"}
+	// @Router /api/register [post]
+	router.POST("/api/register", func(ctx *gin.Context) {
+		handlers.Register(ctx, storage)
 	})
 
 	// @Summary Получить информацию о пользователе
 	// @Description Возвращает данные текущего пользователя
 	// @Tags User
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "get_user"}
-	// @Router /api/get_user [get]
-	router.GET("/api/get_user", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_user",
-		})
+	// @Param user_id path string true "User ID"
+	// @Success 200 {object} models.User
+	// @Failure 400 {object} gin.H{"error": "Invalid user ID"}
+	// @Failure 404 {object} gin.H{"error": "User not found"}
+	// @Router /api/get_user/{user_id} [get]
+	router.GET("/api/get_user/:user_id", func(ctx *gin.Context) {
+		handlers.GetUser(ctx, storage)
 	})
 
 	// @Summary Обновить информацию пользователя

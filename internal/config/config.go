@@ -15,6 +15,7 @@ type AppConfig struct {
 	DBPort         string
 	DBName         string
 	MigrationsPath string
+	JwtSecretKey   string
 }
 
 func LoadConfig() (*AppConfig, error) {
@@ -36,6 +37,7 @@ func LoadConfig() (*AppConfig, error) {
 		DBPort:         os.Getenv("DB_PORT"),
 		DBName:         os.Getenv("DB_NAME"),
 		MigrationsPath: os.Getenv("MIGRATIONS_PATH"),
+		JwtSecretKey:   os.Getenv("JWT_SECRET_KEY"),
 	}
 
 	// Проверяем обязательные параметры
@@ -51,6 +53,10 @@ func LoadConfig() (*AppConfig, error) {
 	}
 	if config.MigrationsPath == "" {
 		missingVars = append(missingVars, "MIGRATIONS_PATH")
+	}
+
+	if config.JwtSecretKey == "" {
+		missingVars = append(missingVars, "JWT_SECRET_KEY")
 	}
 
 	if len(missingVars) > 0 {
