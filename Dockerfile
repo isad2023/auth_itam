@@ -11,13 +11,12 @@ COPY . .
 
 RUN go build -o /app/main ./cmd/app
 
-RUN ls -l /app/main
-
 FROM alpine:latest
 
 WORKDIR /root/
 
 COPY --from=build /app/main .
+COPY .env .
 
-CMD ["./main"]
+CMD ["./app"]
 
