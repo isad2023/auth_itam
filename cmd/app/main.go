@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "itam_auth/docs"
 	"itam_auth/internal/config"
 	"itam_auth/internal/database"
 	"itam_auth/internal/routes"
