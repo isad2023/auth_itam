@@ -67,14 +67,6 @@ func GetPermission(ctx context.Context, db *sql.DB, id uuid.UUID) (models.Permis
 	return permission, nil
 }
 
-func SaveRolePermission(ctx context.Context, db *sql.DB, rolePermission models.RolePermission) (uuid.UUID, error) {
-	_, err := db.ExecContext(ctx, saveNewRolePermission, rolePermission.ID, rolePermission.RoleID, rolePermission.PermissionID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	return rolePermission.ID.UUID, nil
-}
 
 func GetRolePermissions(ctx context.Context, db *sql.DB, roleID uuid.UUID) ([]models.RolePermission, error) {
 	rows, err := db.QueryContext(ctx, getPermissionsByRoleID, roleID)
@@ -95,13 +87,7 @@ func GetRolePermissions(ctx context.Context, db *sql.DB, roleID uuid.UUID) ([]mo
 	return rolePermissions, nil
 }
 
-func SaveUserRole(ctx context.Context, db *sql.DB, userRole models.UserRole) (uuid.UUID, error) {
-	_, err := db.ExecContext(ctx, saveNewUserRole, userRole.ID, userRole.UserID, userRole.RoleID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return userRole.ID.UUID, nil
-}
+
 
 func GetUserRoles(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.UserRole, error) {
 	rows, err := db.QueryContext(ctx, getRolesByUserID, userID)

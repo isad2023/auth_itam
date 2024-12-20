@@ -157,7 +157,7 @@ func GetUserRoles(c *gin.Context, storage *database.Storage) {
         return
     }
 
-    c.JSON(http.StatusOK, roles), nil
+    c.JSON(http.StatusOK, roles)
 }
 
 
@@ -194,5 +194,5 @@ func GetUserPermissions(c *gin.Context, storage *database.Storage) {
         permissions = append(permissions, rolePermissions...)  
     }
 
-    c.JSON(http.StatusOK, permissions), nil
+    c.JSON(http.StatusOK, permissions)
 }
