@@ -4,9 +4,9 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"itam_auth/internal/config"
 	"log"
 	"net/url"
-	"os"
 	"sort"
 	"time"
 
@@ -16,8 +16,9 @@ import (
 var jwtKey []byte
 
 func init() {
+	appConfig, _ := config.LoadConfig()
 	// Загружаем JWT секретный ключ из переменной окружения
-	jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+	jwtKey = []byte(appConfig.JwtSecretKey)
 	if len(jwtKey) == 0 {
 		log.Fatal("JWT_SECRET_KEY is not set in environment variables.")
 	}
