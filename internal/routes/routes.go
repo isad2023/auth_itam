@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"itam_auth/internal/database"
 	"itam_auth/internal/handlers"
 
 	"github.com/gin-contrib/cors"
@@ -9,7 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRoutes() *gin.Engine {
+func SetupRoutes(storage *database.Storage) *gin.Engine {
 
 	// gin.SetMode(gin.ReleaseMode)
 
@@ -229,7 +230,9 @@ func SetupRoutes() *gin.Engine {
 	// @Failure 400 {object} gin.H{"error": "Invalid request"}
 	// @Failure 500 {object} gin.H{"error": "Error while saving notification"}
 	// @Router /api/create_notification [post]
-	router.POST("/api/create_notification", handlers.CreateNotification)
+	router.POST("/api/create_notification", func(ctx *gin.Context) {
+		handlers.CreateNotification(ctx, storage)
+	})
 
 	// UpdateNotification godoc
 	// @Summary Update an existing notification
@@ -242,19 +245,23 @@ func SetupRoutes() *gin.Engine {
 	// @Failure 400 {object} gin.H{"error": "Invalid request"}
 	// @Failure 500 {object} gin.H{"error": "Error while updating notification"}
 	// @Router /api/update_notification [patch]
-	router.PATCH("/api/update_notification", handlers.UpdateNotification)
+	router.PATCH("/api/update_notification", func(ctx *gin.Context) {
+		handlers.UpdateNotification(ctx, storage)
+	})
 
 	// GetAllNotifications godoc
 	// @Summary Get all notifications for a user
 	// @Description Get all notifications for a user
 	// @Tags Notifications
 	// @Produce json
-	// @Param user_id path string true "User ID"
+	// @Param user_id path string false "User ID"
 	// @Success 201 {object} models.Notification
 	// @Failure 400 {object} gin.H{"error": "Invalid user ID"}
 	// @Failure 500 {object} gin.H{"error": "Error while fetching notifications"}
-	// @Router /api/get_all_notifications/{user_id} [get]
-	router.GET("/api/get_all_notifications", handlers.GetAllNotifications)
+	// @Router /api/get_all_notifications [get]
+	router.GET("/api/get_all_notifications", func(ctx *gin.Context) {
+		handlers.GetAllNotifications(ctx, storage)
+	})
 
 	// GetNotification godoc
 	// @Summary Get a notification by its ID
@@ -266,7 +273,9 @@ func SetupRoutes() *gin.Engine {
 	// @Failure 400 {object} gin.H{"error": "Invalid notification ID"}
 	// @Failure 500 {object} gin.H{"error": "Error while fetching notification"}
 	// @Router /api/get_notification/{notification_id} [get]
-	router.GET("/api/get_notification", handlers.GetNotification)
+	router.GET("/api/get_notification/{notification_id}", func(ctx *gin.Context) {
+		handlers.GetNotification(ctx, storage)
+	})
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

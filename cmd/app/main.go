@@ -24,13 +24,14 @@ func main() {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		appConfig.DBHost, appConfig.DBPort, appConfig.DBUser, appConfig.DBPass, appConfig.DBName)
 
-	if err := database.Initialize(dsn); err != nil {
+	storage, err := database.Initialize(dsn)
+	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	defer database.Close()
+	defer storage.Close()
 	log.Println("Database successfully connected.")
 
-	router := routes.SetupRoutes()
+	router := routes.SetupRoutes(storage)
 
 	fmt.Println("Starting server on port 8080")
 	err_server := router.Run(":8080")
