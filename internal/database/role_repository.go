@@ -21,6 +21,14 @@ var (
 
 	saveNewUserRole  = `INSERT INTO user_roles (id, user_id, role_id) VALUES ($1, $2, $3)`
 	getRolesByUserID = `SELECT r.id, r.name FROM roles r INNER JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = $1`
+	
+	getUserPermissions = `
+		SELECT p.id, p.name
+		FROM permissions p
+		INNER JOIN role_permissions rp ON p.id = rp.permission_id
+		INNER JOIN user_roles ur ON rp.role_id = ur.role_id
+		WHERE ur.user_id = $1`
+
 )
 
 func SaveRole(ctx context.Context, db *sql.DB, role models.Role) (uuid.UUID, error) {
@@ -106,4 +114,29 @@ func GetUserRoles(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.U
 		userRoles = append(userRoles, userRole)
 	}
 	return userRoles, nil
+}
+
+
+func GetUserPermissions(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.Permission, error) {
+	rows, err := db.QueryContext(ctx, getUserPermissions, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user permissions: %w", err)
+	}
+	defer rows.Close()
+
+	var permissions []models.Permission
+	for rows.Next() {
+		var permission models.Permission
+		err := rows.Scan(&permission.ID, &permission.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan permission: %w", err)
+		}
+		permissions = append(permissions, permission)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %w", err)
+	}
+
+	return permissions, nil
 }
