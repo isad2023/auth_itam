@@ -1,11 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"database/sql"
+	"errors"
 	"itam_auth/internal/database"
 	"itam_auth/internal/models"
-	"log"
 	"net/http"
 	"time"
 
@@ -19,21 +18,23 @@ func CreateAchievement(c *gin.Context, storage *database.Storage) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	log.Println("Received achievement:", achievement)
+
+	if achievement.Title == "" || achievement.Points < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid title or points"})
+		return
+	}
 
 	achievement.ID = uuid.New()
 	achievement.CreatedAt = time.Now()
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 
-	log.Printf("Saving achievement: %+v\n", achievement)
-	_, err := storage.SaveAchievement(ctx, achievement)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while saving achievement: " + err.Error()})
+	if _, err := storage.SaveAchievement(ctx, achievement); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save achievement"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Achievement created successfully"})
+	c.JSON(http.StatusCreated, gin.H{"message": "Achievement created successfully", "id": achievement.ID})
 }
 
 func UpdateAchievement(c *gin.Context, storage *database.Storage) {
@@ -43,10 +44,9 @@ func UpdateAchievement(c *gin.Context, storage *database.Storage) {
 		return
 	}
 
-	ctx := context.Background()
-	err := storage.UpdateAchievement(ctx, achievement)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while updating achievement"})
+	ctx := c.Request.Context()
+	if err := storage.UpdateAchievement(ctx, achievement); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update achievement"})
 		return
 	}
 
@@ -54,10 +54,10 @@ func UpdateAchievement(c *gin.Context, storage *database.Storage) {
 }
 
 func GetAllAchievements(c *gin.Context, storage *database.Storage) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	achievements, err := storage.GetAllAchievements(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching achievements"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch achievements"})
 		return
 	}
 
@@ -65,17 +65,17 @@ func GetAllAchievements(c *gin.Context, storage *database.Storage) {
 }
 
 func GetAchievementByID(c *gin.Context, storage *database.Storage) {
-	achievementID := c.Query("achievement_id")
-	uuidAchievementID, err := uuid.Parse(achievementID)
+	idParam := c.Query("achievement_id")
+	achievementID, err := uuid.Parse(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid achievement ID"})
 		return
 	}
 
-	ctx := context.Background()
-	achievement, err := storage.GetAchievementByID(ctx, uuidAchievementID)
+	ctx := c.Request.Context()
+	achievement, err := storage.GetAchievementByID(ctx, achievementID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) { // Проверяем обёрнутую ошибку
 			c.JSON(http.StatusNotFound, gin.H{"error": "Achievement not found"})
 			return
 		}
@@ -87,15 +87,15 @@ func GetAchievementByID(c *gin.Context, storage *database.Storage) {
 }
 
 func GetAchievementsByUserID(c *gin.Context, storage *database.Storage) {
-	userID := c.Query("user_id")
-	uuidUserID, err := uuid.Parse(userID)
+	idParam := c.Query("user_id")
+	userID, err := uuid.Parse(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	ctx := context.Background()
-	achievements, err := storage.GetAchievementsByUserID(ctx, uuidUserID)
+	ctx := c.Request.Context()
+	achievements, err := storage.GetAchievementsByUserID(ctx, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching achievements"})
 		return
@@ -105,15 +105,15 @@ func GetAchievementsByUserID(c *gin.Context, storage *database.Storage) {
 }
 
 func DeleteAchievement(c *gin.Context, storage *database.Storage) {
-	achievementID := c.Query("achievement_id")
-	uuidAchievementID, err := uuid.Parse(achievementID)
+	idParam := c.Query("achievement_id")
+	achievementID, err := uuid.Parse(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid achievement ID"})
 		return
 	}
 
-	ctx := context.Background()
-	err = storage.DeleteAchievement(ctx, uuidAchievementID)
+	ctx := c.Request.Context()
+	err = storage.DeleteAchievement(ctx, achievementID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while deleting achievement"})
 		return

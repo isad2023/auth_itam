@@ -9,7 +9,7 @@ import (
 type Achievement struct {
 	ID          uuid.UUID
 	Title       string
-	Description string
+	Description *string
 	Points      float64
 	Approved    bool
 	CreatedBy   int64

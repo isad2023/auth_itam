@@ -116,16 +116,6 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 		})
 	})
 
-	// @Summary Получить достижения пользователя
-	// @Description Возвращает список достижений текущего пользователя
-	// @Tags User
-	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "get_user_achievements"}
-	// @Router /api/get_user_achievements [get]
-	router.GET("/api/get_user_achievements", func(ctx *gin.Context) {
-		handlers.GetAchievementsByUserID(ctx, storage)
-	})
-
 	//* Requests
 
 	// @Summary Создать запрос пользователя
@@ -172,12 +162,28 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 
 	//* Achievements
 
+	// @Summary Получить достижения пользователя
+	// @Description Возвращает список достижений текущего пользователя
+	// @Tags Achievements
+	// @Produce json
+	// @Param user_id query string true "User ID"
+	// @Success 200 {array} models.Achievement
+	// @Failure 400 {object} map[string]string{"error": "Invalid user ID"}
+	// @Failure 500 {object} map[string]string{"error": "Error while fetching achievements"}
+	// @Router /api/get_user_achievements [get]
+	router.GET("/api/get_user_achievements", func(ctx *gin.Context) {
+		handlers.GetAchievementsByUserID(ctx, storage)
+	})
+
 	// @Summary Создать достижение
 	// @Description Создает новое достижение
 	// @Tags Achievements
 	// @Accept json
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "create_achievement"}
+	// @Param achievement body models.Achievement true "Achievement data"
+	// @Success 201 {object} map[string]interface{"message": "Achievement created successfully", "id": string}
+	// @Failure 400 {object} map[string]string{"error": "Invalid title or points"}
+	// @Failure 500 {object} map[string]string{"error": "Failed to save achievement"}
 	// @Router /api/create_achievement [post]
 	router.POST("/api/create_achievement", func(ctx *gin.Context) {
 		handlers.CreateAchievement(ctx, storage)
@@ -188,7 +194,10 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Tags Achievements
 	// @Accept json
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "update_achievement"}
+	// @Param achievement body models.Achievement true "Achievement data"
+	// @Success 200 {object} map[string]string{"message": "Achievement updated successfully"}
+	// @Failure 400 {object} map[string]string{"error": "Invalid request"}
+	// @Failure 500 {object} map[string]string{"error": "Failed to update achievement"}
 	// @Router /api/update_achievement [patch]
 	router.PATCH("/api/update_achievement", func(ctx *gin.Context) {
 		handlers.UpdateAchievement(ctx, storage)
@@ -198,7 +207,11 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Description Возвращает информацию о конкретном достижении
 	// @Tags Achievements
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "get_achievement"}
+	// @Param achievement_id query string true "Achievement ID"
+	// @Success 200 {object} models.Achievement
+	// @Failure 400 {object} map[string]string{"error": "Invalid achievement ID"}
+	// @Failure 404 {object} map[string]string{"error": "Achievement not found"}
+	// @Failure 500 {object} map[string]string{"error": "Error while fetching achievement"}
 	// @Router /api/get_achievement [get]
 	router.GET("/api/get_achievement", func(ctx *gin.Context) {
 		handlers.GetAchievementByID(ctx, storage)
@@ -208,7 +221,7 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Description Возвращает список всех достижений
 	// @Tags Achievements
 	// @Produce json
-	// @Success 200 {object} map[string]string{"message": "get_all_achievements"}
+	// @Success 200 {array} models.Achievement
 	// @Router /api/get_all_achievements [get]
 	router.GET("/api/get_all_achievements", func(ctx *gin.Context) {
 		handlers.GetAllAchievements(ctx, storage)
