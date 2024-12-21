@@ -41,7 +41,20 @@ func (s *Storage) GetUserByEmail(ctx context.Context, email string) (models.User
 	row := s.db.QueryRowContext(ctx, getUserByEmail, email)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Specification, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Telegram,
+		&user.PasswordHash,
+		&user.PhotoURL,
+		&user.About,
+		&user.ResumeURL,
+		&user.Specification,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user, fmt.Errorf("user not found")

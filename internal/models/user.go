@@ -48,11 +48,11 @@ type User struct {
 	ID            uuid.UUID
 	Name          string
 	Email         string
-	Telegram      string
+	Telegram      *string
 	PasswordHash  string
-	PhotoURL      string
-	About         string
-	ResumeURL     string
+	PhotoURL      *string
+	About         *string
+	ResumeURL     *string
 	Specification Specification
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
