@@ -165,7 +165,7 @@ func GetUser(c *gin.Context, storage *database.Storage) {
 	ctx := context.Background()
 	user, err := storage.GetUserByID(ctx, uuidUserID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found", "err": err.Error()})
 		return
 	}
 
