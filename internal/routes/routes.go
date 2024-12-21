@@ -100,10 +100,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_user_roles"}
 	// @Router /api/get_user_roles [get]
-	router.GET("/api/get_user_roles", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_user_roles",
-		})
+	router.GET("/api/get_user_roles", func(ctx *gin.Context) {
+		handlers.GetUserRoles(ctx, storage)
 	})
 
 	// @Summary Получить свойства пользователя
@@ -124,10 +122,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_user_achievements"}
 	// @Router /api/get_user_achievements [get]
-	router.GET("/api/get_user_achievements", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_user_achievements",
-		})
+	router.GET("/api/get_user_achievements", func(ctx *gin.Context) {
+		handlers.GetAchievementsByUserID(ctx, storage)
 	})
 
 	//* Requests
@@ -183,10 +179,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "create_achievement"}
 	// @Router /api/create_achievement [post]
-	router.POST("/api/create_achievement", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "create_achievement",
-		})
+	router.POST("/api/create_achievement", func(ctx *gin.Context) {
+		handlers.CreateAchievement(ctx, storage)
 	})
 
 	// @Summary Обновить достижение
@@ -196,10 +190,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "update_achievement"}
 	// @Router /api/update_achievement [patch]
-	router.PATCH("/api/update_achievement", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "update_achievement",
-		})
+	router.PATCH("/api/update_achievement", func(ctx *gin.Context) {
+		handlers.UpdateAchievement(ctx, storage)
 	})
 
 	// @Summary Получить достижение
@@ -208,10 +200,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_achievement"}
 	// @Router /api/get_achievement [get]
-	router.GET("/api/get_achievement", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_achievement",
-		})
+	router.GET("/api/get_achievement", func(ctx *gin.Context) {
+		handlers.GetAchievementByID(ctx, storage)
 	})
 
 	// @Summary Получить все достижения
@@ -220,10 +210,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_all_achievements"}
 	// @Router /api/get_all_achievements [get]
-	router.GET("/api/get_all_achievements", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_all_achievements",
-		})
+	router.GET("/api/get_all_achievements", func(ctx *gin.Context) {
+		handlers.GetAllAchievements(ctx, storage)
 	})
 
 	//* Notifications (admin)
