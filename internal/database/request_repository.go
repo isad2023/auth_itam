@@ -2,8 +2,8 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"itam_auth/internal/models"
+	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -11,18 +11,19 @@ import (
 var (
 	saveNewRequest      = `INSERT INTO requests (id, user_id, description, certificate, status, type, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 	getRequestsByUserID = `SELECT * FROM requests WHERE user_id = $1`
+	updateRequest       = `UPDATE requests SET status = $1, updated_at = $2 WHERE id = $3`
 )
 
-func SaveRequest(ctx context.Context, db *sql.DB, request models.Request) (uuid.UUID, error) {
-	_, err := db.ExecContext(ctx, saveNewRequest, request.ID, request.UserID, request.Description, request.Certificate, request.Status, request.Type, request.CreatedAt)
+func (s *Storage) SaveRequest(ctx context.Context, request models.Request) (uuid.UUID, error) {
+	_, err := s.db.ExecContext(ctx, saveNewRequest, request.ID, request.UserID, request.Description, request.Certificate, request.Status, request.Type, request.CreatedAt)
 	if err != nil {
 		return uuid.Nil, err
 	}
 	return request.ID, nil
 }
 
-func GetRequests(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.Request, error) {
-	rows, err := db.QueryContext(ctx, getRequestsByUserID, userID)
+func (s *Storage) GetRequests(ctx context.Context, userID uuid.UUID) ([]models.Request, error) {
+	rows, err := s.db.QueryContext(ctx, getRequestsByUserID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -38,4 +39,9 @@ func GetRequests(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.Re
 		requests = append(requests, request)
 	}
 	return requests, nil
+}
+
+func (s *Storage) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, status string) error {
+	_, err := s.db.ExecContext(ctx, updateRequest, status, time.Now(), requestID)
+	return err
 }

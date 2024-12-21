@@ -139,10 +139,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "create_user_request"}
 	// @Router /api/create_user_request [post]
-	router.POST("/api/create_user_request", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "create_user_request",
-		})
+	router.POST("/api/create_user_request", func(ctx *gin.Context) {
+		handlers.CreateUserRequest(ctx, storage)
 	})
 
 	// @Summary Получить запрос пользователя
@@ -151,10 +149,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_request"}
 	// @Router /api/get_request [get]
-	router.GET("/api/get_request", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_request",
-		})
+	router.GET("/api/get_request", func(ctx *gin.Context) {
+		handlers.GetRequest(ctx, storage)
 	})
 
 	// @Summary Получить все запросы пользователя
@@ -163,10 +159,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "get_all_requests"}
 	// @Router /api/get_all_requests [get]
-	router.GET("/api/get_all_requests", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "get_all_requests",
-		})
+	router.GET("/api/get_all_requests", func(ctx *gin.Context) {
+		handlers.GetAllRequests(ctx, storage)
 	})
 
 	// @Summary Обновить статус запроса
@@ -176,10 +170,8 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 	// @Produce json
 	// @Success 200 {object} map[string]string{"message": "update_request_status"}
 	// @Router /api/update_request_status [patch]
-	router.PATCH("/api/update_request_status", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "update_request_status",
-		})
+	router.PATCH("/api/update_request_status", func(ctx *gin.Context) {
+		handlers.UpdateRequestStatus(ctx, storage)
 	})
 
 	//* Achievements
