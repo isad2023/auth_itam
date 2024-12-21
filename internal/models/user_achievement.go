@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+	"github.com/google/uuid"
 )
 
 type UserAchievements struct {

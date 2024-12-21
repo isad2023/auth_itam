@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"itam_auth/internal/models"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 var (

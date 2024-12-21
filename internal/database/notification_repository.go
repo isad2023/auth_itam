@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"itam_auth/internal/models"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 var (
@@ -17,12 +17,12 @@ var (
 )
 
 func (s *Storage) SaveNotification(ctx context.Context, notification models.Notification) (uuid.UUID, error) {
-	id := notification.ID.UUID
+	id := notification.ID
 	_, err := s.db.ExecContext(ctx, saveNewNotification, id, notification.UserID, notification.Content, notification.IsRead, notification.CreatedAt)
 	if err != nil {
 		return uuid.Nil, err
 	}
-	return notification.ID.UUID, nil
+	return notification.ID, nil
 }
 
 func (s *Storage) GetNotifications(ctx context.Context, userID uuid.UUID) ([]models.Notification, error) {

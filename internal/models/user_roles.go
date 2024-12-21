@@ -1,6 +1,6 @@
 package models
 
-import uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+import "github.com/google/uuid"
 
 type UserRole struct {
 	ID     uuid.UUID

@@ -5,7 +5,7 @@ import (
 	"itam_auth/internal/models"
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 var (

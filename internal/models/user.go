@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+	"github.com/google/uuid"
 )
 
 type Specification string

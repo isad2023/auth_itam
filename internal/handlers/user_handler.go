@@ -11,8 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
-	gofrs_uuid "github.com/jackc/pgtype/ext/gofrs-uuid"
+	"github.com/google/uuid"
 )
 
 type TelegramAuth struct {
@@ -47,7 +46,7 @@ func Login(c *gin.Context, storage *database.Storage) {
 	}
 
 	// Генерация UUID
-	userID, _ := uuid.NewV4()
+	userID := uuid.New()
 
 	ctx := context.Background()
 	user, err := storage.GetUserByID(ctx, userID)
@@ -87,16 +86,10 @@ func Register(c *gin.Context, storage *database.Storage) {
 		return
 	}
 
-	userID, err := uuid.NewV4()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while generating user ID"})
-		return
-	}
-
-	pgUUID := gofrs_uuid.UUID{UUID: userID}
+	userID := uuid.New()
 
 	user := models.User{
-		ID:           pgUUID,
+		ID:           userID,
 		Name:         fmt.Sprintf("%s %s", auth.FirstName, auth.LastName),
 		Email:        fmt.Sprintf("%d@telegram.com", auth.ID),
 		Telegram:     auth.Username,
@@ -108,7 +101,7 @@ func Register(c *gin.Context, storage *database.Storage) {
 
 	ctx := context.Background()
 
-	_, err = storage.SaveUser(ctx, user)
+	_, err := storage.SaveUser(ctx, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while saving user"})
 		return
@@ -118,8 +111,8 @@ func Register(c *gin.Context, storage *database.Storage) {
 }
 
 func GetUser(c *gin.Context, storage *database.Storage) {
-	userID := c.Param("user_id")
-	uuidUserID, err := uuid.FromString(userID)
+	userID := c.Query("user_id")
+	uuidUserID, err := uuid.Parse(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
@@ -143,7 +136,7 @@ func GetUserRoles(c *gin.Context, storage *database.Storage) {
 		return
 	}
 
-	uuidUserID, errUUID := uuid.FromString(userID)
+	uuidUserID, errUUID := uuid.Parse(userID)
 	if errUUID != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
@@ -167,7 +160,7 @@ func GetUserPermissions(c *gin.Context, storage *database.Storage) {
 		return
 	}
 
-	uuidUserID, errUUID := uuid.FromString(userID)
+	uuidUserID, errUUID := uuid.Parse(userID)
 	if errUUID != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return

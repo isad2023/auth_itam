@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
-	pgUUID "github.com/jackc/pgtype/ext/gofrs-uuid"
+	"github.com/google/uuid"
 )
 
 func CreateNotification(c *gin.Context, storage *database.Storage) {
@@ -22,19 +21,14 @@ func CreateNotification(c *gin.Context, storage *database.Storage) {
 	}
 	log.Println("Received notification:", notification)
 
-	notificationID, err := uuid.NewV4()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while generating notification ID"})
-		return
-	}
-	notification.ID = pgUUID.UUID{UUID: notificationID}
+	notification.ID = uuid.New()
 	notification.CreatedAt = time.Now()
 	notification.IsRead = false
 
 	ctx := context.Background()
 
 	log.Printf("Saving notification: %+v\n", notification)
-	_, err = storage.SaveNotification(ctx, notification)
+	_, err := storage.SaveNotification(ctx, notification)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while saving notification:" + err.Error()})
 		return
@@ -69,7 +63,7 @@ func GetAllNotifications(c *gin.Context, storage *database.Storage) {
 	if userID == "" {
 		notifications, err = storage.GetAllNotifications(ctx)
 	} else {
-		uuidUserID, errUUID := uuid.FromString(userID)
+		uuidUserID, errUUID := uuid.Parse(userID)
 		if errUUID != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 			return
@@ -87,7 +81,7 @@ func GetAllNotifications(c *gin.Context, storage *database.Storage) {
 
 func GetNotification(c *gin.Context, storage *database.Storage) {
 	notificationID := c.Param("notification_id")
-	uuidNotificationID, err := uuid.FromString(notificationID)
+	uuidNotificationID, err := uuid.Parse(notificationID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid notification ID"})
 		return

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"itam_auth/internal/models"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 var (
@@ -20,7 +20,7 @@ func (s *Storage) SaveUser(ctx context.Context, user models.User) (uuid.UUID, er
 	if err != nil {
 		return uuid.Nil, err
 	}
-	return user.ID.UUID, nil
+	return user.ID, nil
 }
 
 func (s *Storage) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {

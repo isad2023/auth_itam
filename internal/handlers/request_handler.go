@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 func CreateUserRequest(c *gin.Context, storage *database.Storage) {
@@ -19,8 +19,8 @@ func CreateUserRequest(c *gin.Context, storage *database.Storage) {
 		return
 	}
 
-	request.ID, _ = uuid.NewV4()
-	request.UserID, _ = uuid.NewV4()
+	request.ID = uuid.New()
+	request.UserID = uuid.New()
 	request.CreatedAt = time.Now()
 
 	ctx := context.Background()
@@ -34,7 +34,7 @@ func CreateUserRequest(c *gin.Context, storage *database.Storage) {
 }
 
 func GetRequest(c *gin.Context, storage *database.Storage) {
-	userID, err := uuid.FromString(c.Query("user_id"))
+	userID, err := uuid.Parse(c.Query("user_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
@@ -51,7 +51,7 @@ func GetRequest(c *gin.Context, storage *database.Storage) {
 }
 
 func GetAllRequests(c *gin.Context, storage *database.Storage) {
-	userID, err := uuid.FromString(c.Query("user_id"))
+	userID, err := uuid.Parse(c.Query("user_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return

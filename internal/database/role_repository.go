@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"itam_auth/internal/models"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 var (
@@ -29,7 +29,7 @@ func (s *Storage) SaveRole(ctx context.Context, role models.Role) (uuid.UUID, er
 	if err != nil {
 		return uuid.Nil, err
 	}
-	return role.ID.UUID, nil
+	return role.ID, nil
 }
 
 func (s *Storage) GetRole(ctx context.Context, id uuid.UUID) (models.Role, error) {
@@ -51,7 +51,7 @@ func (s *Storage) SavePermission(ctx context.Context, permission models.Permissi
 	if err != nil {
 		return uuid.Nil, err
 	}
-	return permission.ID.UUID, nil
+	return permission.ID, nil
 }
 
 func (s *Storage) GetPermission(ctx context.Context, id uuid.UUID) (models.Permission, error) {
