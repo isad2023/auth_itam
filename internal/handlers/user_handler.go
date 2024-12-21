@@ -135,64 +135,61 @@ func GetUser(c *gin.Context, storage *database.Storage) {
 	c.JSON(http.StatusOK, user)
 }
 
-
 func GetUserRoles(c *gin.Context, storage *database.Storage) {
-    userID := c.Query("user_id")
-    
-    if userID == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
-        return
-    }
-    
-    uuidUserID, errUUID := uuid.FromString(userID)
-    if errUUID != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
-    
-    ctx := context.Background()
-    roles, err := storage.GetUserRoles(ctx, uuidUserID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles"})
-        return
-    }
+	userID := c.Query("user_id")
 
-    c.JSON(http.StatusOK, roles)
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		return
+	}
+
+	uuidUserID, errUUID := uuid.FromString(userID)
+	if errUUID != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	ctx := context.Background()
+	roles, err := storage.GetUserRoles(ctx, uuidUserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, roles)
 }
 
-
-
 func GetUserPermissions(c *gin.Context, storage *database.Storage) {
-    userID := c.Query("user_id")
-    
-    if userID == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
-        return
-    }
-    
-    uuidUserID, errUUID := uuid.FromString(userID)
-    if errUUID != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
-    
-    ctx := context.Background()
-    
-    userRoles, err := storage.GetUserRoles(ctx, uuidUserID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles"})
-        return
-    }
+	userID := c.Query("user_id")
 
-    var permissions []models.RolePermission
-    for _, role := range userRoles {
-        rolePermissions, err := storage.GetRolePermissions(ctx, role.RoleID)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching role permissions"})
-            return
-        }
-        permissions = append(permissions, rolePermissions...)  
-    }
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		return
+	}
 
-    c.JSON(http.StatusOK, permissions)
+	uuidUserID, errUUID := uuid.FromString(userID)
+	if errUUID != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	ctx := context.Background()
+
+	userRoles, err := storage.GetUserRoles(ctx, uuidUserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles"})
+		return
+	}
+
+	var permissions []models.RolePermission
+	for _, role := range userRoles {
+		rolePermissions, err := storage.GetRolePermissions(ctx, role.RoleID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching role permissions"})
+			return
+		}
+		permissions = append(permissions, rolePermissions...)
+	}
+
+	c.JSON(http.StatusOK, permissions)
 }
