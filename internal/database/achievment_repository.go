@@ -19,18 +19,16 @@ var (
 	getAchievementsByUserID = `SELECT * FROM achievements WHERE created_by = $1`
 )
 
-
-func SaveAchievement(ctx context.Context, db *sql.DB, achievement models.Achievement) (uuid.UUID, error) {
-	_, err := db.ExecContext(ctx, saveNewAchievement, achievement.ID, achievement.Title, achievement.Description, achievement.Points, achievement.Approved, achievement.CreatedBy, achievement.CreatedAt)
+func (s *Storage) SaveAchievement(ctx context.Context, achievement models.Achievement) (uuid.UUID, error) {
+	_, err := s.db.ExecContext(ctx, saveNewAchievement, achievement.ID, achievement.Title, achievement.Description, achievement.Points, achievement.Approved, achievement.CreatedBy, achievement.CreatedAt)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("failed to save achievement: %w", err)
 	}
 	return achievement.ID, nil
 }
 
-
-func GetAchievementByID(ctx context.Context, db *sql.DB, id uuid.UUID) (models.Achievement, error) {
-	row := db.QueryRowContext(ctx, getAchievementByID, id)
+func (s *Storage) GetAchievementByID(ctx context.Context, id uuid.UUID) (models.Achievement, error) {
+	row := s.db.QueryRowContext(ctx, getAchievementByID, id)
 
 	var achievement models.Achievement
 	err := row.Scan(&achievement.ID, &achievement.Title, &achievement.Description, &achievement.Points, &achievement.Approved, &achievement.CreatedBy, &achievement.CreatedAt)
@@ -43,9 +41,8 @@ func GetAchievementByID(ctx context.Context, db *sql.DB, id uuid.UUID) (models.A
 	return achievement, nil
 }
 
-
-func GetAllAchievements(ctx context.Context, db *sql.DB) ([]models.Achievement, error) {
-	rows, err := db.QueryContext(ctx, getAllAchievements)
+func (s *Storage) GetAllAchievements(ctx context.Context) ([]models.Achievement, error) {
+	rows, err := s.db.QueryContext(ctx, getAllAchievements)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all achievements: %w", err)
 	}
@@ -68,27 +65,24 @@ func GetAllAchievements(ctx context.Context, db *sql.DB) ([]models.Achievement, 
 	return achievements, nil
 }
 
-
-func UpdateAchievement(ctx context.Context, db *sql.DB, achievement models.Achievement) error {
-	_, err := db.ExecContext(ctx, updateAchievement, achievement.Title, achievement.Description, achievement.Points, achievement.Approved, achievement.CreatedBy, achievement.CreatedAt, achievement.ID)
+func (s *Storage) UpdateAchievement(ctx context.Context, achievement models.Achievement) error {
+	_, err := s.db.ExecContext(ctx, updateAchievement, achievement.Title, achievement.Description, achievement.Points, achievement.Approved, achievement.CreatedBy, achievement.CreatedAt, achievement.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update achievement: %w", err)
 	}
 	return nil
 }
 
-
-func DeleteAchievement(ctx context.Context, db *sql.DB, id uuid.UUID) error {
-	_, err := db.ExecContext(ctx, deleteAchievement, id)
+func (s *Storage) DeleteAchievement(ctx context.Context, id uuid.UUID) error {
+	_, err := s.db.ExecContext(ctx, deleteAchievement, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete achievement: %w", err)
 	}
 	return nil
 }
 
-
-func GetAchievementsByUserID(ctx context.Context, db *sql.DB, userID uuid.UUID) ([]models.Achievement, error) {
-	rows, err := db.QueryContext(ctx, getAchievementsByUserID, userID)
+func (s *Storage) GetAchievementsByUserID(ctx context.Context, userID uuid.UUID) ([]models.Achievement, error) {
+	rows, err := s.db.QueryContext(ctx, getAchievementsByUserID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get achievements by user ID: %w", err)
 	}
