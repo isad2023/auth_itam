@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -22,46 +21,58 @@ func LoadConfig() (*AppConfig, error) {
 
 	dir, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Error getting current working directory: %v", err)
+		return nil, fmt.Errorf("failed to get current working directory: %w", err)
 	}
 	fmt.Println("Current working directory:", dir)
 
 	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: Could not load .env file: %v", err)
+		fmt.Printf("Warning: could not load .env file: %v\n", err)
 	}
 
 	config := &AppConfig{
-		DBUser:         os.Getenv("DB_USER"),
-		DBPass:         os.Getenv("DB_PASSWORD"),
-		DBHost:         os.Getenv("DB_HOST"),
-		DBPort:         os.Getenv("DB_PORT"),
-		DBName:         os.Getenv("DB_NAME"),
-		MigrationsPath: os.Getenv("MIGRATIONS_PATH"),
-		JwtSecretKey:   os.Getenv("JWT_SECRET_KEY"),
+		DBUser:         getEnv("DB_USER", "itam_user"),
+		DBPass:         getEnv("DB_PASSWORD", "itam_db"),
+		DBHost:         getEnv("DB_HOST", "localhost"),
+		DBPort:         getEnv("DB_PORT", "5432"),
+		DBName:         getEnv("DB_NAME", "itam_auth"),
+		MigrationsPath: getEnv("MIGRATIONS_PATH", ""),
+		JwtSecretKey:   getEnv("JWT_SECRET_KEY", ""),
 	}
 
-	// Проверяем обязательные параметры
+	if err := validateConfig(config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+func validateConfig(cfg *AppConfig) error {
 	missingVars := []string{}
-	if config.DBUser == "" {
+	if cfg.DBUser == "" {
 		missingVars = append(missingVars, "DB_USER")
 	}
-	if config.DBPass == "" {
+	if cfg.DBPass == "" {
 		missingVars = append(missingVars, "DB_PASSWORD")
 	}
-	if config.DBName == "" {
+	if cfg.DBName == "" {
 		missingVars = append(missingVars, "DB_NAME")
 	}
-	if config.MigrationsPath == "" {
+	if cfg.MigrationsPath == "" {
 		missingVars = append(missingVars, "MIGRATIONS_PATH")
 	}
-
-	if config.JwtSecretKey == "" {
+	if cfg.JwtSecretKey == "" {
 		missingVars = append(missingVars, "JWT_SECRET_KEY")
 	}
 
 	if len(missingVars) > 0 {
-		return nil, fmt.Errorf("missing required environment variables: %v", missingVars)
+		return fmt.Errorf("missing required environment variables: %v", missingVars)
 	}
+	return nil
+}
 
-	return config, nil
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists && value != "" {
+		return value
+	}
+	return defaultValue
 }

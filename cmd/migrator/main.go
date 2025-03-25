@@ -4,78 +4,66 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"itam_auth/internal/config"
 	"log"
-	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/joho/godotenv"
 )
 
-func loadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-}
-
 func main() {
-	var dbUser, dbPass, dbHost, dbPort, dbName, migrationsPath, direction string
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to parse config: %v", err)
+	}
 
-	flag.StringVar(&dbUser, "db-user", "", "database user")
-	flag.StringVar(&dbPass, "db-pass", "", "database password")
-	flag.StringVar(&dbHost, "db-host", "", "database host")
-	flag.StringVar(&dbPort, "db-port", "", "database port")
-	flag.StringVar(&dbName, "db-name", "", "database name")
-	flag.StringVar(&migrationsPath, "migrations-path", "", "path to migrations")
-	flag.StringVar(&direction, "direction", "up", "migration direction: up or down")
+	flag.StringVar(&cfg.DBUser, "db-user", cfg.DBUser, "database user")
+	flag.StringVar(&cfg.DBPass, "db-pass", cfg.DBPass, "database password")
+	flag.StringVar(&cfg.DBHost, "db-host", cfg.DBHost, "database host")
+	flag.StringVar(&cfg.DBPort, "db-port", cfg.DBPort, "database port")
+	flag.StringVar(&cfg.DBName, "db-name", cfg.DBName, "database name")
+	flag.StringVar(&cfg.MigrationsPath, "migrations-path", cfg.MigrationsPath, "path to migrations")
+	direction := flag.String("direction", "up", "migration direction: up or down")
 	flag.Parse()
 
-	loadEnv()
-	if dbUser == "" {
-		dbUser = os.Getenv("DB_USER")
-	}
-	if dbPass == "" {
-		dbPass = os.Getenv("DB_PASSWORD")
-	}
-	if dbHost == "" {
-		dbHost = os.Getenv("DB_HOST")
-	}
-	if dbPort == "" {
-		dbPort = os.Getenv("DB_PORT")
-	}
-	if dbName == "" {
-		dbName = os.Getenv("DB_NAME")
-	}
-	if migrationsPath == "" {
-		migrationsPath = os.Getenv("MIGRATIONS_PATH")
-	}
-
-	if dbUser == "" || dbPass == "" || dbHost == "" || dbName == "" || migrationsPath == "" {
-		log.Fatal("Missing required arguments or environment variables")
-	}
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.DBUser,
+		cfg.DBPass,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
+	)
 
 	m, err := migrate.New(
-		"file://"+migrationsPath,
-		fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName),
+		"file://"+cfg.MigrationsPath,
+		dsn,
 	)
+
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
 
+	if err := applyMigration(m, *direction); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+}
+
+func applyMigration(m *migrate.Migrate, direction string) error {
 	switch direction {
 	case "up":
 		if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-			log.Fatalf("Failed to apply migrations: %v", err)
+			return fmt.Errorf("failed to apply migrations: %w", err)
 		}
-		fmt.Println("Migrations applied")
+		fmt.Println("Migrations applied successfully")
 	case "down":
 		if err := m.Steps(-1); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-			log.Fatalf("Failed to revert migrations: %v", err)
+			return fmt.Errorf("failed to revert migrations: %w", err)
 		}
-		fmt.Println("Migrations reverted")
+		fmt.Println("Migrations reverted successfully")
 	default:
-		log.Fatal("Invalid direction. Use 'up' or 'down'.")
+		return fmt.Errorf("invalid migration direction: %s. (Use 'up' or 'down')", direction)
 	}
+	return nil
 }

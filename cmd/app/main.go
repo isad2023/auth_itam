@@ -13,7 +13,15 @@ import (
 // @version 1.0
 // @description ITaM API
 // @host localhost:8080
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Bearer token for authorization. Format: "Bearer <token>"
 // @BasePath /api
+const (
+	serverPort = ":8080"
+)
+
 func main() {
 	appConfig, err := config.LoadConfig()
 	if err != nil {
@@ -21,8 +29,14 @@ func main() {
 	}
 	log.Println("Configuration successfully loaded.")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		appConfig.DBHost, appConfig.DBPort, appConfig.DBUser, appConfig.DBPass, appConfig.DBName)
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		appConfig.DBHost,
+		appConfig.DBPort,
+		appConfig.DBUser,
+		appConfig.DBPass,
+		appConfig.DBName,
+	)
 
 	storage, err := database.Initialize(dsn)
 	if err != nil {
@@ -32,11 +46,9 @@ func main() {
 	log.Println("Database successfully connected.")
 
 	router := routes.SetupRoutes(storage)
-
-	fmt.Println("Starting server on port 8080")
-	err_server := router.Run(":8080")
-	if err_server != nil {
-		fmt.Println("Error starting server:", err_server)
+	log.Printf("Starting server on port %s", serverPort)
+	if err := router.Run(serverPort); err != nil {
+		fmt.Printf("Error starting server: %v", err)
 	}
 
 }

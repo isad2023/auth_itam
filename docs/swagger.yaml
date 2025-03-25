@@ -1,9 +1,843 @@
-basePath: /api
+definitions:
+  handlers.CreateRequestInput:
+    properties:
+      certificate:
+        type: string
+      description:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    required:
+    - description
+    - type
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  handlers.UpdateRequestStatusRequest:
+    properties:
+      request_id:
+        type: string
+      status:
+        type: string
+    required:
+    - request_id
+    - status
+    type: object
+  models.Achievement:
+    properties:
+      approved:
+        type: boolean
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      points:
+        type: number
+      title:
+        type: string
+    type: object
+  models.Notification:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      isRead:
+        type: boolean
+      userID:
+        type: string
+    type: object
+  models.Specification:
+    enum:
+    - Frontend
+    - Backend
+    - Machine Learning
+    - Developer
+    - Designer
+    - Manager
+    type: string
+    x-enum-varnames:
+    - Frontend
+    - Backend
+    - MachineLearning
+    - Developer
+    - Designer
+    - Manager
+  models.User:
+    properties:
+      about:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      passwordHash:
+        type: string
+      photoURL:
+        type: string
+      resumeURL:
+        type: string
+      specification:
+        $ref: '#/definitions/models.Specification'
+      telegram:
+        type: string
+      updatedAt:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: ITaM API
   title: LiveCode API
   version: "1.0"
-paths: {}
+paths:
+  /api/create_achievement:
+    post:
+      consumes:
+      - application/json
+      description: Создает новое достижение
+      parameters:
+      - description: Achievement data
+        in: body
+        name: achievement
+        required: true
+        schema:
+          $ref: '#/definitions/models.Achievement'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success message with ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid title or points
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to save achievement
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать достижение
+      tags:
+      - Achievements
+  /api/create_notification:
+    post:
+      consumes:
+      - application/json
+      description: Создает новое уведомление
+      parameters:
+      - description: Notification data
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/models.Notification'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать уведомление
+      tags:
+      - Notifications
+  /api/create_user_request:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый запрос от имени пользователя
+      parameters:
+      - description: Request data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateRequestInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with request ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать запрос пользователя
+      tags:
+      - Requests
+  /api/delete_achievement:
+    delete:
+      description: Удаляет достижение по его ID
+      parameters:
+      - description: Achievement ID
+        in: query
+        name: achievement_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid achievement ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить достижение
+      tags:
+      - Achievements
+  /api/get_achievement:
+    get:
+      description: Возвращает информацию о конкретном достижении
+      parameters:
+      - description: Achievement ID
+        in: query
+        name: achievement_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Achievement data
+          schema:
+            $ref: '#/definitions/models.Achievement'
+        "400":
+          description: Invalid achievement ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Achievement not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Error while fetching achievement
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить достижение
+      tags:
+      - Achievements
+  /api/get_all_achievements:
+    get:
+      description: Возвращает список всех достижений с пагинацией
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all achievements
+          schema:
+            items:
+              $ref: '#/definitions/models.Achievement'
+            type: array
+        "400":
+          description: Invalid pagination parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить все достижения
+      tags:
+      - Achievements
+  /api/get_all_notifications:
+    get:
+      description: Возвращает список всех уведомлений или уведомлений пользователя
+        с пагинацией
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of notifications
+          schema:
+            items:
+              $ref: '#/definitions/models.Notification'
+            type: array
+        "400":
+          description: Invalid user ID or pagination parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить все уведомления
+      tags:
+      - Notifications
+  /api/get_all_requests:
+    get:
+      description: Возвращает список всех запросов текущего пользователя с пагинацией
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All requests
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or pagination parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить все запросы пользователя
+      tags:
+      - Requests
+  /api/get_notification/{notification_id}:
+    get:
+      description: Возвращает уведомление по его ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: notification_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification data
+          schema:
+            $ref: '#/definitions/models.Notification'
+        "400":
+          description: Invalid notification ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Notification not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить уведомление по ID
+      tags:
+      - Notifications
+  /api/get_request:
+    get:
+      description: Возвращает список запросов пользователя с пагинацией
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Request data
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid user ID or pagination parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить запросы пользователя
+      tags:
+      - Requests
+  /api/get_user/{user_id}:
+    get:
+      description: Возвращает данные текущего пользователя
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid user ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить информацию о пользователе
+      tags:
+      - User
+  /api/get_user_achievements:
+    get:
+      description: Возвращает список достижений пользователя с пагинацией
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of achievements
+          schema:
+            items:
+              $ref: '#/definitions/models.Achievement'
+            type: array
+        "400":
+          description: Invalid user ID or pagination parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить достижения пользователя
+      tags:
+      - Achievements
+  /api/get_user_properties:
+    get:
+      description: Возвращает список свойств текущего пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User properties
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить свойства пользователя
+      tags:
+      - User
+  /api/get_user_roles:
+    get:
+      description: Возвращает список ролей текущего пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User roles
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить роли пользователя
+      tags:
+      - User
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя с использованием логина и пароля
+      parameters:
+      - description: Login credentials
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Логин пользователя
+      tags:
+      - User
+  /api/ping:
+    get:
+      description: Проверяет доступность сервера
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response with pong message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Пинг-сервис
+      tags:
+      - Health
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация нового пользователя в системе
+      parameters:
+      - description: User registration details
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success message with user data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация нового пользователя
+      tags:
+      - User
+  /api/update_achievement:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет существующее достижение
+      parameters:
+      - description: Achievement data
+        in: body
+        name: achievement
+        required: true
+        schema:
+          $ref: '#/definitions/models.Achievement'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to update achievement
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить достижение
+      tags:
+      - Achievements
+  /api/update_notification:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет существующее уведомление
+      parameters:
+      - description: Notification data
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/models.Notification'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить уведомление
+      tags:
+      - Notifications
+  /api/update_request_status:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет статус указанного запроса
+      parameters:
+      - description: Request status update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateRequestStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить статус запроса
+      tags:
+      - Requests
+  /api/update_user_info:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет профиль пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить информацию пользователя
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    description: 'Bearer token for authorization. Format: "Bearer <token>"'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
