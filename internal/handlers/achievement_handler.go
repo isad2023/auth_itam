@@ -34,7 +34,7 @@ func parseIntQuery(c *gin.Context, paramName string, defaultValue int) (int, err
 // @Accept json
 // @Produce json
 // @Param achievement body models.Achievement true "Achievement data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 201 {object} map[string]interface{} "Success message with ID"
 // @Failure 400 {object} map[string]string "Invalid title or points"
 // @Failure 500 {object} map[string]string "Failed to save achievement"
@@ -71,7 +71,7 @@ func CreateAchievement(storage *database.Storage) gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param achievement body models.Achievement true "Achievement data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid achievement ID or data"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -105,7 +105,7 @@ func UpdateAchievement(storage *database.Storage) gin.HandlerFunc {
 // @Produce json
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {array} models.Achievement "List of all achievements"
 // @Failure 400 {object} map[string]string "Invalid pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -138,7 +138,7 @@ func GetAllAchievements(storage *database.Storage) gin.HandlerFunc {
 // @Tags Achievements
 // @Produce json
 // @Param achievement_id query string true "Achievement ID"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} models.Achievement "Achievement data"
 // @Failure 400 {object} map[string]string "Invalid achievement ID"
 // @Failure 404 {object} map[string]string "Achievement not found"
@@ -175,7 +175,7 @@ func GetAchievementByID(storage *database.Storage) gin.HandlerFunc {
 // @Param user_id query string true "User ID"
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {array} models.Achievement "List of achievements"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -215,7 +215,7 @@ func GetAchievementsByUserID(storage *database.Storage) gin.HandlerFunc {
 // @Tags Achievements
 // @Produce json
 // @Param achievement_id query string true "Achievement ID"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid achievement ID"
 // @Failure 500 {object} map[string]string "Internal server error"

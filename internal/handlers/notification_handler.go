@@ -20,7 +20,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param notification body models.Notification true "Notification data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 201 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -57,7 +57,7 @@ func CreateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param notification body models.Notification true "Notification data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -93,7 +93,7 @@ func UpdateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Param user_id query string false "User ID"
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {array} models.Notification "List of notifications"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -141,7 +141,7 @@ func GetAllNotifications(storage *database.Storage) gin.HandlerFunc {
 // @Tags Notifications
 // @Produce json
 // @Param notification_id path string true "Notification ID"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} models.Notification "Notification data"
 // @Failure 400 {object} map[string]string "Invalid notification ID"
 // @Failure 404 {object} map[string]string "Notification not found"
@@ -176,7 +176,7 @@ func GetNotification(storage *database.Storage) gin.HandlerFunc {
 // @Tags Notifications
 // @Produce json
 // @Param notification_id query string true "Notification ID"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid notification ID"
 // @Failure 404 {object} map[string]string "Notification not found"

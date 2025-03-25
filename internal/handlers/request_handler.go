@@ -29,7 +29,7 @@ type UpdateRequestStatusRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body handlers.CreateRequestInput true "Request data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]interface{} "Success message with request ID"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
@@ -86,7 +86,7 @@ func CreateUserRequest(storage *database.Storage) gin.HandlerFunc {
 // @Param user_id query string true "User ID"
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]interface{} "Request data"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -129,7 +129,7 @@ func GetRequest(storage *database.Storage) gin.HandlerFunc {
 // @Param user_id query string true "User ID"
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]interface{} "All requests"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -171,7 +171,7 @@ func GetAllRequests(storage *database.Storage) gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param request body handlers.UpdateRequestStatusRequest true "Request status update data"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -204,7 +204,7 @@ func UpdateRequestStatus(storage *database.Storage) gin.HandlerFunc {
 // @Tags Requests
 // @Produce json
 // @Param request_id query string true "Request ID"
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request ID"
 // @Failure 404 {object} map[string]string "Request not found"

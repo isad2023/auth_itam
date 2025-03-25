@@ -30,8 +30,8 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" form:"username" binding:"required,email"`
+	Password string `json:"password" form:"password" binding:"required"`
 }
 
 // @Summary Регистрация нового пользователя
@@ -66,10 +66,10 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 // @Summary Логин пользователя
 // @Description Авторизация пользователя с использованием логина и пароля
 // @Tags User
-// @Accept json
+// @Accept json,x-www-form-urlencoded
 // @Produce json
 // @Param login body handlers.LoginRequest true "Login credentials"
-// @Success 200 {object} map[string]string "JWT token"
+// @Success 200 {object} map[string]interface{} "JWT token"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -77,9 +77,18 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+		
+		// Поддержка как JSON, так и form-data
+		if c.ContentType() == "application/json" {
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+		} else {
+			if err := c.ShouldBind(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
 		}
 
 		ctx := context.Background()
@@ -219,7 +228,7 @@ func GetUser(storage *database.Storage) gin.HandlerFunc {
 // @Description Возвращает список ролей текущего пользователя
 // @Tags User
 // @Produce json
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {array} models.UserRole "User roles"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -256,7 +265,7 @@ func GetUserRoles(storage *database.Storage) gin.HandlerFunc {
 // @Description Возвращает список свойств текущего пользователя
 // @Tags User
 // @Produce json
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} map[string]string "User properties"
 // @Router /api/get_user_properties [get]
 func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
@@ -302,7 +311,7 @@ func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Param user body models.User true "User update data"
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
@@ -358,7 +367,7 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 // @Description Возвращает данные авторизованного пользователя
 // @Tags User
 // @Produce json
-// @Security BearerAuth
+// @Security OAuth2Password
 // @Success 200 {object} models.User "User data"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"

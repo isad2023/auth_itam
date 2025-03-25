@@ -13,7 +13,7 @@
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новое достижение",
@@ -71,7 +71,7 @@
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новое уведомление",
@@ -131,7 +131,7 @@
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новый запрос от имени пользователя",
@@ -198,7 +198,7 @@
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет достижение по его ID",
@@ -253,7 +253,7 @@
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет уведомление по ID",
@@ -317,7 +317,7 @@
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет запрос по его ID",
@@ -381,7 +381,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает информацию о конкретном достижении",
@@ -442,7 +442,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех достижений с пагинацией",
@@ -504,7 +504,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех уведомлений или уведомлений пользователя с пагинацией",
@@ -572,7 +572,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех запросов текущего пользователя с пагинацией",
@@ -639,7 +639,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает уведомление по его ID",
@@ -700,7 +700,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список запросов пользователя с пагинацией",
@@ -814,7 +814,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список достижений пользователя с пагинацией",
@@ -883,7 +883,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список свойств текущего пользователя",
@@ -911,7 +911,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список ролей текущего пользователя",
@@ -957,7 +957,8 @@
             "post": {
                 "description": "Авторизация пользователя с использованием логина и пароля",
                 "consumes": [
-                    "application/json"
+                    "application/json",
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -982,9 +983,7 @@
                         "description": "JWT token",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -1021,7 +1020,7 @@
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает данные авторизованного пользователя",
@@ -1142,7 +1141,7 @@
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет существующее достижение",
@@ -1202,7 +1201,7 @@
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет существующее уведомление",
@@ -1262,7 +1261,7 @@
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет статус указанного запроса",
@@ -1322,7 +1321,7 @@
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет профиль пользователя",
@@ -1578,11 +1577,10 @@
         }
     },
     "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Bearer token for authorization. Format: \"Bearer \u003ctoken\u003e\"",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        "OAuth2Password": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/api/login"
         }
     }
 }

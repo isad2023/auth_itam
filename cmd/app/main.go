@@ -14,10 +14,10 @@ import (
 // @description ITaM API
 // @host localhost:8080
 // @BasePath /
-// @securityDefinitions.apikey BearerAuth
+// @securityDefinitions.oauth2.password OAuth2Password
+// @tokenUrl /api/login
 // @in header
 // @name Authorization
-// @description Bearer token for authorization. Format: "Bearer <token>"
 const (
 	serverPort = ":8080"
 )

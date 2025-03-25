@@ -167,7 +167,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Создать достижение
       tags:
       - Achievements
@@ -205,7 +205,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Создать уведомление
       tags:
       - Notifications
@@ -248,7 +248,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Создать запрос пользователя
       tags:
       - Requests
@@ -283,7 +283,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Удалить достижение
       tags:
       - Achievements
@@ -324,7 +324,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Удалить уведомление
       tags:
       - Notifications
@@ -365,7 +365,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Удалить запрос
       tags:
       - Requests
@@ -404,7 +404,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить достижение
       tags:
       - Achievements
@@ -444,7 +444,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить все достижения
       tags:
       - Achievements
@@ -489,7 +489,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить все уведомления
       tags:
       - Notifications
@@ -533,7 +533,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить все запросы пользователя
       tags:
       - Requests
@@ -572,7 +572,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить уведомление по ID
       tags:
       - Notifications
@@ -616,7 +616,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить запросы пользователя
       tags:
       - Requests
@@ -692,7 +692,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить достижения пользователя
       tags:
       - Achievements
@@ -709,7 +709,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить свойства пользователя
       tags:
       - User
@@ -738,7 +738,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить роли пользователя
       tags:
       - User
@@ -746,6 +746,7 @@ paths:
     post:
       consumes:
       - application/json
+      - application/x-www-form-urlencoded
       description: Авторизация пользователя с использованием логина и пароля
       parameters:
       - description: Login credentials
@@ -760,8 +761,7 @@ paths:
         "200":
           description: JWT token
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "400":
           description: Invalid request
@@ -807,7 +807,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Получить информацию о текущем пользователе
       tags:
       - User
@@ -896,7 +896,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Обновить достижение
       tags:
       - Achievements
@@ -934,7 +934,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Обновить уведомление
       tags:
       - Notifications
@@ -972,7 +972,7 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Обновить статус запроса
       tags:
       - Requests
@@ -1016,14 +1016,13 @@ paths:
               type: string
             type: object
       security:
-      - BearerAuth: []
+      - OAuth2Password: []
       summary: Обновить информацию пользователя
       tags:
       - User
 securityDefinitions:
-  BearerAuth:
-    description: 'Bearer token for authorization. Format: "Bearer <token>"'
-    in: header
-    name: Authorization
-    type: apiKey
+  OAuth2Password:
+    flow: password
+    tokenUrl: /api/login
+    type: oauth2
 swagger: "2.0"

@@ -19,7 +19,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новое достижение",
@@ -77,7 +77,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новое уведомление",
@@ -137,7 +137,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Создает новый запрос от имени пользователя",
@@ -204,7 +204,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет достижение по его ID",
@@ -259,7 +259,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет уведомление по ID",
@@ -323,7 +323,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Удаляет запрос по его ID",
@@ -387,7 +387,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает информацию о конкретном достижении",
@@ -448,7 +448,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех достижений с пагинацией",
@@ -510,7 +510,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех уведомлений или уведомлений пользователя с пагинацией",
@@ -578,7 +578,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список всех запросов текущего пользователя с пагинацией",
@@ -645,7 +645,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает уведомление по его ID",
@@ -706,7 +706,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список запросов пользователя с пагинацией",
@@ -820,7 +820,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список достижений пользователя с пагинацией",
@@ -889,7 +889,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список свойств текущего пользователя",
@@ -917,7 +917,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает список ролей текущего пользователя",
@@ -963,7 +963,8 @@ const docTemplate = `{
             "post": {
                 "description": "Авторизация пользователя с использованием логина и пароля",
                 "consumes": [
-                    "application/json"
+                    "application/json",
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -988,9 +989,7 @@ const docTemplate = `{
                         "description": "JWT token",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -1027,7 +1026,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Возвращает данные авторизованного пользователя",
@@ -1148,7 +1147,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет существующее достижение",
@@ -1208,7 +1207,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет существующее уведомление",
@@ -1268,7 +1267,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет статус указанного запроса",
@@ -1328,7 +1327,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Обновляет профиль пользователя",
@@ -1584,11 +1583,10 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Bearer token for authorization. Format: \"Bearer \u003ctoken\u003e\"",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        "OAuth2Password": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/api/login"
         }
     }
 }`
