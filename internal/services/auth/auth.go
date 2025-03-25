@@ -23,10 +23,6 @@ const (
 )
 
 func validateUserData(name, email, password string) error {
-	if strings.TrimSpace(name) == "" {
-		return fmt.Errorf("name cannot be empty")
-	}
-
 	if strings.TrimSpace(email) == "" {
 		return fmt.Errorf("email cannot be empty")
 	}
