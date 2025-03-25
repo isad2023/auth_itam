@@ -18,6 +18,7 @@ var (
 	updateExistingNotification = `UPDATE notifications SET user_id = $1, content = $2, is_read = $3, created_at = $4 WHERE id = $5`
 	getNotificationByID        = `SELECT * FROM notifications WHERE id = $1`
 	getAllNotifications        = `SELECT * FROM notifications LIMIT $1 OFFSET $2`
+	deleteNotification         = `DELETE FROM notifications WHERE id = $1`
 )
 
 func validateNotification(notification models.Notification) error {
@@ -228,4 +229,43 @@ func (s *Storage) GetNotificationByID(ctx context.Context, notificationID uuid.U
 	}
 
 	return notification, nil
+}
+
+func (s *Storage) DeleteNotification(ctx context.Context, notificationID uuid.UUID) error {
+	if notificationID == uuid.Nil {
+		return fmt.Errorf("notification ID cannot be empty")
+	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Printf("Failed to begin transaction for deleting notification with ID %s: %v", notificationID, err)
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			log.Printf("Failed to rollback transaction for deleting notification with ID %s: %v", notificationID, err)
+		}
+	}()
+
+	result, err := tx.ExecContext(ctx, deleteNotification, notificationID)
+	if err != nil {
+		log.Printf("Failed to delete notification with ID %s: %v", notificationID, err)
+		return fmt.Errorf("failed to delete notification: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Failed to get rows affected for deleting notification with ID %s: %v", notificationID, err)
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no notification found with ID: %s", notificationID)
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("Failed to commit transaction for deleting notification with ID %s: %v", notificationID, err)
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }

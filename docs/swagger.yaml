@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   handlers.CreateRequestInput:
     properties:
@@ -165,6 +166,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Создать достижение
       tags:
       - Achievements
@@ -201,6 +204,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Создать уведомление
       tags:
       - Notifications
@@ -277,9 +282,93 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Удалить достижение
       tags:
       - Achievements
+  /api/delete_notification:
+    delete:
+      description: Удаляет уведомление по ID
+      parameters:
+      - description: Notification ID
+        in: query
+        name: notification_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid notification ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Notification not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить уведомление
+      tags:
+      - Notifications
+  /api/delete_request:
+    delete:
+      description: Удаляет запрос по его ID
+      parameters:
+      - description: Request ID
+        in: query
+        name: request_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Request not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить запрос
+      tags:
+      - Requests
   /api/get_achievement:
     get:
       description: Возвращает информацию о конкретном достижении
@@ -314,6 +403,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить достижение
       tags:
       - Achievements
@@ -352,6 +443,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить все достижения
       tags:
       - Achievements
@@ -395,6 +488,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить все уведомления
       tags:
       - Notifications
@@ -437,6 +532,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить все запросы пользователя
       tags:
       - Requests
@@ -474,6 +571,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить уведомление по ID
       tags:
       - Notifications
@@ -592,6 +691,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить достижения пользователя
       tags:
       - Achievements
@@ -607,6 +708,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Получить свойства пользователя
       tags:
       - User
@@ -679,6 +782,33 @@ paths:
               type: string
             type: object
       summary: Логин пользователя
+      tags:
+      - User
+  /api/me:
+    get:
+      description: Возвращает данные авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о текущем пользователе
       tags:
       - User
   /api/ping:
@@ -754,17 +884,19 @@ paths:
               type: string
             type: object
         "400":
-          description: Invalid request
+          description: Invalid achievement ID or data
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Failed to update achievement
+          description: Internal server error
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Обновить достижение
       tags:
       - Achievements
@@ -801,6 +933,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Обновить уведомление
       tags:
       - Notifications
@@ -837,6 +971,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Обновить статус запроса
       tags:
       - Requests
@@ -845,6 +981,13 @@ paths:
       consumes:
       - application/json
       description: Обновляет профиль пользователя
+      parameters:
+      - description: User update data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
@@ -854,6 +997,26 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
       summary: Обновить информацию пользователя
       tags:
       - User

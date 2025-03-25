@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"itam_auth/internal/database"
 	"itam_auth/internal/models"
 	"log"
@@ -19,6 +20,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param notification body models.Notification true "Notification data"
+// @Security BearerAuth
 // @Success 201 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -55,6 +57,7 @@ func CreateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param notification body models.Notification true "Notification data"
+// @Security BearerAuth
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -90,6 +93,7 @@ func UpdateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Param user_id query string false "User ID"
 // @Param limit query int false "Limit" default(10)
 // @Param offset query int false "Offset" default(0)
+// @Security BearerAuth
 // @Success 200 {array} models.Notification "List of notifications"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -137,6 +141,7 @@ func GetAllNotifications(storage *database.Storage) gin.HandlerFunc {
 // @Tags Notifications
 // @Produce json
 // @Param notification_id path string true "Notification ID"
+// @Security BearerAuth
 // @Success 200 {object} models.Notification "Notification data"
 // @Failure 400 {object} map[string]string "Invalid notification ID"
 // @Failure 404 {object} map[string]string "Notification not found"
@@ -163,5 +168,45 @@ func GetNotification(storage *database.Storage) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, notification)
+	}
+}
+
+// @Summary Удалить уведомление
+// @Description Удаляет уведомление по ID
+// @Tags Notifications
+// @Produce json
+// @Param notification_id query string true "Notification ID"
+// @Security BearerAuth
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 400 {object} map[string]string "Invalid notification ID"
+// @Failure 404 {object} map[string]string "Notification not found"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/delete_notification [delete]
+func DeleteNotification(storage *database.Storage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		notificationID := c.Query("notification_id")
+		if notificationID == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Notification ID is required"})
+			return
+		}
+
+		uuidNotificationID, err := uuid.Parse(notificationID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid notification ID"})
+			return
+		}
+
+		ctx := context.Background()
+		err = storage.DeleteNotification(ctx, uuidNotificationID)
+		if err != nil {
+			if err.Error() == fmt.Sprintf("no notification found with ID: %s", uuidNotificationID) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Notification not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while deleting notification", "details": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Notification deleted successfully"})
 	}
 }

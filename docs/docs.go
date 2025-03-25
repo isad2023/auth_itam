@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/api/create_achievement": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Создает новое достижение",
                 "consumes": [
                     "application/json"
@@ -70,6 +75,11 @@ const docTemplate = `{
         },
         "/api/create_notification": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Создает новое уведомление",
                 "consumes": [
                     "application/json"
@@ -192,6 +202,11 @@ const docTemplate = `{
         },
         "/api/delete_achievement": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Удаляет достижение по его ID",
                 "produces": [
                     "application/json"
@@ -240,8 +255,141 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/delete_notification": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удаляет уведомление по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Удалить уведомление",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification ID",
+                        "name": "notification_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid notification ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notification not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/delete_request": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удаляет запрос по его ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Удалить запрос",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Request ID",
+                        "name": "request_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/get_achievement": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает информацию о конкретном достижении",
                 "produces": [
                     "application/json"
@@ -298,6 +446,11 @@ const docTemplate = `{
         },
         "/api/get_all_achievements": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список всех достижений с пагинацией",
                 "produces": [
                     "application/json"
@@ -355,6 +508,11 @@ const docTemplate = `{
         },
         "/api/get_all_notifications": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список всех уведомлений или уведомлений пользователя с пагинацией",
                 "produces": [
                     "application/json"
@@ -418,6 +576,11 @@ const docTemplate = `{
         },
         "/api/get_all_requests": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список всех запросов текущего пользователя с пагинацией",
                 "produces": [
                     "application/json"
@@ -480,6 +643,11 @@ const docTemplate = `{
         },
         "/api/get_notification/{notification_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает уведомление по его ID",
                 "produces": [
                     "application/json"
@@ -650,6 +818,11 @@ const docTemplate = `{
         },
         "/api/get_user_achievements": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список достижений пользователя с пагинацией",
                 "produces": [
                     "application/json"
@@ -714,6 +887,11 @@ const docTemplate = `{
         },
         "/api/get_user_properties": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список свойств текущего пользователя",
                 "produces": [
                     "application/json"
@@ -845,6 +1023,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает данные авторизованного пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Получить информацию о текущем пользователе",
+                "responses": {
+                    "200": {
+                        "description": "User data",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/ping": {
             "get": {
                 "description": "Проверяет доступность сервера",
@@ -925,6 +1146,11 @@ const docTemplate = `{
         },
         "/api/update_achievement": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Обновляет существующее достижение",
                 "consumes": [
                     "application/json"
@@ -958,7 +1184,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Invalid achievement ID or data",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -967,7 +1193,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to update achievement",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -980,6 +1206,11 @@ const docTemplate = `{
         },
         "/api/update_notification": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Обновляет существующее уведомление",
                 "consumes": [
                     "application/json"
@@ -1035,6 +1266,11 @@ const docTemplate = `{
         },
         "/api/update_request_status": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Обновляет статус указанного запроса",
                 "consumes": [
                     "application/json"
@@ -1090,6 +1326,11 @@ const docTemplate = `{
         },
         "/api/update_user_info": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Обновляет профиль пользователя",
                 "consumes": [
                     "application/json"
@@ -1101,9 +1342,47 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "Обновить информацию пользователя",
+                "parameters": [
+                    {
+                        "description": "User update data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1318,7 +1597,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "LiveCode API",
 	Description:      "ITaM API",

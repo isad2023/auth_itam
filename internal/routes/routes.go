@@ -28,39 +28,42 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 
 	api := router.Group("/api")
 	{
+		// Public routes that don't require authorization
 		api.GET("/ping", pingHandler)
-
-		//* USER ROUTES
 		api.POST("/login", handlers.Login(storage, hmacSecret))
 		api.POST("/register", handlers.Register(storage))
 		api.GET("/get_user/:user_id", handlers.GetUser(storage))
 
+		// Protected routes that require authorization
 		auth := api.Group("/")
 		auth.Use(middleware.AuthMiddleware(hmacSecret))
 		{
-			api.PATCH("/update_user_info", updateUserInfoHandler())
-			api.GET("/get_user_roles", handlers.GetUserRoles(storage))
-			api.GET("/get_user_properties", handlers.GetUserPermissions(storage))
+			auth.GET("/me", handlers.GetCurrentUser(storage))
+			auth.PATCH("/update_user_info", handlers.UpdateUserInfo(storage))
+			auth.GET("/get_user_roles", handlers.GetUserRoles(storage))
+			auth.GET("/get_user_properties", handlers.GetUserPermissions(storage))
 
 			//* REQUEST ROUTES
-			api.POST("/create_user_request", handlers.CreateUserRequest(storage))
-			api.GET("/get_request", handlers.GetRequest(storage))
-			api.GET("/get_all_requests", handlers.GetAllRequests(storage))
-			api.PATCH("/update_request_status", handlers.UpdateRequestStatus(storage))
+			auth.POST("/create_user_request", handlers.CreateUserRequest(storage))
+			auth.GET("/get_request", handlers.GetRequest(storage))
+			auth.GET("/get_all_requests", handlers.GetAllRequests(storage))
+			auth.PATCH("/update_request_status", handlers.UpdateRequestStatus(storage))
+			auth.DELETE("/delete_request", handlers.DeleteRequest(storage))
 
 			//* ACHIEVEMENT ROUTES
-			api.GET("/get_user_achievements", handlers.GetAchievementsByUserID(storage))
-			api.POST("/create_achievement", handlers.CreateAchievement(storage))
-			api.PATCH("/update_achievement", handlers.UpdateAchievement(storage))
-			api.GET("/get_achievement", handlers.GetAchievementByID(storage))
-			api.GET("/get_all_achievements", handlers.GetAllAchievements(storage))
-			api.DELETE("/delete_achievement", handlers.DeleteAchievement(storage))
+			auth.GET("/get_user_achievements", handlers.GetAchievementsByUserID(storage))
+			auth.POST("/create_achievement", handlers.CreateAchievement(storage))
+			auth.PATCH("/update_achievement", handlers.UpdateAchievement(storage))
+			auth.GET("/get_achievement", handlers.GetAchievementByID(storage))
+			auth.GET("/get_all_achievements", handlers.GetAllAchievements(storage))
+			auth.DELETE("/delete_achievement", handlers.DeleteAchievement(storage))
 
 			//* NOTIFICATION ROUTES
-			api.POST("/create_notification", handlers.CreateNotification(storage))
-			api.PATCH("/update_notification", handlers.UpdateNotification(storage))
-			api.GET("/get_all_notifications", handlers.GetAllNotifications(storage))
-			api.GET("/get_notification/:notification_id", handlers.GetNotification(storage))
+			auth.POST("/create_notification", handlers.CreateNotification(storage))
+			auth.PATCH("/update_notification", handlers.UpdateNotification(storage))
+			auth.GET("/get_all_notifications", handlers.GetAllNotifications(storage))
+			auth.GET("/get_notification/:notification_id", handlers.GetNotification(storage))
+			auth.DELETE("/delete_notification", handlers.DeleteNotification(storage))
 		}
 	}
 
@@ -77,17 +80,4 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 // @Router /api/ping [get]
 func pingHandler(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"message": "pong"})
-}
-
-// @Summary Обновить информацию пользователя
-// @Description Обновляет профиль пользователя
-// @Tags User
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]string "Success message"
-// @Router /api/update_user_info [patch]
-func updateUserInfoHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"message": "update_user_info"})
-	}
 }

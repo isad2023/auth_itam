@@ -7,6 +7,7 @@ import (
 	"itam_auth/internal/services/auth"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -88,7 +89,12 @@ func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"token": tokenString})
+		// Формат ответа для совместимости с OAuth2
+		c.JSON(http.StatusOK, gin.H{
+			"access_token": tokenString,
+			"token_type": "Bearer",
+			"expires_in": 2592000, // 30 дней в секундах
+		})
 	}
 }
 
@@ -250,21 +256,25 @@ func GetUserRoles(storage *database.Storage) gin.HandlerFunc {
 // @Description Возвращает список свойств текущего пользователя
 // @Tags User
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} map[string]string "User properties"
 // @Router /api/get_user_properties [get]
 func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Query("user_id")
-		if userID == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		// Get the user from context that was set by AuthMiddleware
+		user, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 			return
 		}
-
-		uuidUserID, errUUID := uuid.Parse(userID)
-		if errUUID != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		
+		userObj, ok := user.(models.User)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
 			return
 		}
+		
+		uuidUserID := userObj.ID
 
 		ctx := context.Background()
 		userRoles, err := storage.GetUserRoles(ctx, uuidUserID)
@@ -284,5 +294,101 @@ func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, permissions)
+	}
+}
+
+// @Summary Обновить информацию пользователя
+// @Description Обновляет профиль пользователя
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param user body models.User true "User update data"
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 400 {object} map[string]string "Invalid request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/update_user_info [patch]
+func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get authenticated user from context
+		userAuth, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+			return
+		}
+		
+		authUser, ok := userAuth.(models.User)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+			return
+		}
+		
+		// Get update data from request
+		var updateData models.User
+		if err := c.ShouldBindJSON(&updateData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "details": err.Error()})
+			return
+		}
+		
+		// Only allow updating certain fields
+		user := models.User{
+			ID:            authUser.ID,
+			Name:          updateData.Name,
+			Specification: updateData.Specification,
+			About:         updateData.About,
+			PhotoURL:      updateData.PhotoURL,
+			ResumeURL:     updateData.ResumeURL,
+			UpdatedAt:     time.Now(),
+		}
+		
+		// Update user in database
+		ctx := context.Background()
+		err := storage.UpdateUser(ctx, user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user", "details": err.Error()})
+			return
+		}
+		
+		c.JSON(http.StatusOK, gin.H{"message": "User information updated successfully"})
+	}
+}
+
+// @Summary Получить информацию о текущем пользователе
+// @Description Возвращает данные авторизованного пользователя
+// @Tags User
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.User "User data"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/me [get]
+func GetCurrentUser(storage *database.Storage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the user from context that was set by AuthMiddleware
+		user, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+			return
+		}
+		
+		userObj, ok := user.(models.User)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
+			return
+		}
+		
+		// Get full user information from database
+		ctx := context.Background()
+		fullUser, err := storage.GetUserByID(ctx, userObj.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user data", "details": err.Error()})
+			return
+		}
+		
+		// Remove sensitive information
+		fullUser.PasswordHash = ""
+		
+		c.JSON(http.StatusOK, fullUser)
 	}
 }

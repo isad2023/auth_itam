@@ -13,11 +13,11 @@ import (
 // @version 1.0
 // @description ITaM API
 // @host localhost:8080
+// @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 // @description Bearer token for authorization. Format: "Bearer <token>"
-// @BasePath /api
 const (
 	serverPort = ":8080"
 )
@@ -50,5 +50,4 @@ func main() {
 	if err := router.Run(serverPort); err != nil {
 		fmt.Printf("Error starting server: %v", err)
 	}
-
 }

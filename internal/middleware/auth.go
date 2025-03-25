@@ -16,13 +16,21 @@ func AuthMiddleware(hmacSecret string) gin.HandlerFunc {
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
-			return
-		}
+		var tokenString string
 
-		tokenString := parts[1]
+		// Проверяем, начинается ли заголовок с "Bearer "
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			// Разбиваем на части и берем токен
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
+				return
+			}
+			tokenString = parts[1]
+		} else {
+			// Считаем, что передан просто токен
+			tokenString = authHeader
+		}
 
 		user, err := jwt.ValidateToken(tokenString, hmacSecret)
 		if err != nil {
@@ -31,6 +39,7 @@ func AuthMiddleware(hmacSecret string) gin.HandlerFunc {
 		}
 
 		c.Set("user", user)
+		c.Set("user_id", user.ID.String())
 
 		c.Next()
 	}

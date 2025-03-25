@@ -17,6 +17,7 @@ var (
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 	getRequestsByUserID = `SELECT * FROM requests WHERE user_id = $1 LIMIT $2 OFFSET $3`
 	updateRequest       = `UPDATE requests SET status = $1, updated_at = $2 WHERE id = $3`
+	deleteRequest       = `DELETE FROM requests WHERE id = $1`
 )
 
 var ValidRequestStatuses = map[string]bool{
@@ -185,5 +186,45 @@ func (s *Storage) UpdateRequestStatus(ctx context.Context, requestID uuid.UUID, 
 	}
 
 	log.Printf("Request status updated successfully for ID %s to %s", requestID, status)
+	return nil
+}
+
+func (s *Storage) DeleteRequest(ctx context.Context, requestID uuid.UUID) error {
+	if requestID == uuid.Nil {
+		return fmt.Errorf("request ID cannot be empty")
+	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		log.Printf("Failed to begin transaction for deleting request with ID %s: %v", requestID, err)
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			log.Printf("Failed to rollback transaction for deleting request with ID %s: %v", requestID, err)
+		}
+	}()
+
+	result, err := tx.ExecContext(ctx, deleteRequest, requestID)
+	if err != nil {
+		log.Printf("Failed to delete request with ID %s: %v", requestID, err)
+		return fmt.Errorf("failed to delete request: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Failed to get rows affected for deleting request with ID %s: %v", requestID, err)
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no request found with ID: %s", requestID)
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("Failed to commit transaction for deleting request with ID %s: %v", requestID, err)
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	log.Printf("Request deleted successfully for ID %s", requestID)
 	return nil
 }
