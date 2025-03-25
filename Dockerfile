@@ -1,4 +1,3 @@
-
 FROM golang:1.23.2-alpine AS build
 
 WORKDIR /app
@@ -18,5 +17,5 @@ WORKDIR /root/
 COPY --from=build /app/main .
 COPY .env .
 
-CMD ["./app"]
+CMD ["./main"]
 
