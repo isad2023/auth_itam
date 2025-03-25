@@ -117,6 +117,15 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.UserRole:
+    properties:
+      id:
+        type: string
+      roleID:
+        type: string
+      userID:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -610,9 +619,23 @@ paths:
         "200":
           description: User roles
           schema:
+            items:
+              $ref: '#/definitions/models.UserRole'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
             additionalProperties:
               type: string
             type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
       summary: Получить роли пользователя
       tags:
       - User

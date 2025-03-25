@@ -3,6 +3,7 @@ package routes
 import (
 	"itam_auth/internal/database"
 	"itam_auth/internal/handlers"
+	"itam_auth/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRoutes(storage *database.Storage) *gin.Engine {
+func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 
 	// gin.SetMode(gin.ReleaseMode)
 
@@ -30,32 +31,37 @@ func SetupRoutes(storage *database.Storage) *gin.Engine {
 		api.GET("/ping", pingHandler)
 
 		//* USER ROUTES
-		api.POST("/login", handlers.Login(storage))
+		api.POST("/login", handlers.Login(storage, hmacSecret))
 		api.POST("/register", handlers.Register(storage))
 		api.GET("/get_user/:user_id", handlers.GetUser(storage))
-		api.PATCH("/update_user_info", updateUserInfoHandler())
-		api.GET("/get_user_roles", handlers.GetUserRoles(storage))
-		api.GET("/get_user_properties", handlers.GetUserPermissions(storage))
 
-		// REQUEST ROUTES
-		api.POST("/create_user_request", handlers.CreateUserRequest(storage))
-		api.GET("/get_request", handlers.GetRequest(storage))
-		api.GET("/get_all_requests", handlers.GetAllRequests(storage))
-		api.PATCH("/update_request_status", handlers.UpdateRequestStatus(storage))
+		auth := api.Group("/")
+		auth.Use(middleware.AuthMiddleware(hmacSecret))
+		{
+			api.PATCH("/update_user_info", updateUserInfoHandler())
+			api.GET("/get_user_roles", handlers.GetUserRoles(storage))
+			api.GET("/get_user_properties", handlers.GetUserPermissions(storage))
 
-		// ACHIEVEMENT ROUTES
-		api.GET("/get_user_achievements", handlers.GetAchievementsByUserID(storage))
-		api.POST("/create_achievement", handlers.CreateAchievement(storage))
-		api.PATCH("/update_achievement", handlers.UpdateAchievement(storage))
-		api.GET("/get_achievement", handlers.GetAchievementByID(storage))
-		api.GET("/get_all_achievements", handlers.GetAllAchievements(storage))
-		api.DELETE("/delete_achievement", handlers.DeleteAchievement(storage))
+			//* REQUEST ROUTES
+			api.POST("/create_user_request", handlers.CreateUserRequest(storage))
+			api.GET("/get_request", handlers.GetRequest(storage))
+			api.GET("/get_all_requests", handlers.GetAllRequests(storage))
+			api.PATCH("/update_request_status", handlers.UpdateRequestStatus(storage))
 
-		// NOTIFICATION ROUTES
-		api.POST("/create_notification", handlers.CreateNotification(storage))
-		api.PATCH("/update_notification", handlers.UpdateNotification(storage))
-		api.GET("/get_all_notifications", handlers.GetAllNotifications(storage))
-		api.GET("/get_notification/:notification_id", handlers.GetNotification(storage))
+			//* ACHIEVEMENT ROUTES
+			api.GET("/get_user_achievements", handlers.GetAchievementsByUserID(storage))
+			api.POST("/create_achievement", handlers.CreateAchievement(storage))
+			api.PATCH("/update_achievement", handlers.UpdateAchievement(storage))
+			api.GET("/get_achievement", handlers.GetAchievementByID(storage))
+			api.GET("/get_all_achievements", handlers.GetAllAchievements(storage))
+			api.DELETE("/delete_achievement", handlers.DeleteAchievement(storage))
+
+			//* NOTIFICATION ROUTES
+			api.POST("/create_notification", handlers.CreateNotification(storage))
+			api.PATCH("/update_notification", handlers.UpdateNotification(storage))
+			api.GET("/get_all_notifications", handlers.GetAllNotifications(storage))
+			api.GET("/get_notification/:notification_id", handlers.GetNotification(storage))
+		}
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -45,7 +45,7 @@ func main() {
 	defer storage.Close()
 	log.Println("Database successfully connected.")
 
-	router := routes.SetupRoutes(storage)
+	router := routes.SetupRoutes(storage, appConfig.JwtSecretKey)
 	log.Printf("Starting server on port %s", serverPort)
 	if err := router.Run(serverPort); err != nil {
 		fmt.Printf("Error starting server: %v", err)

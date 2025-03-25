@@ -75,7 +75,7 @@ func RegisterUser(ctx context.Context, storage *database.Storage, name, email, p
 	return user, nil
 }
 
-func AuthenticateUser(ctx context.Context, storage *database.Storage, email, password string) (string, error) {
+func AuthenticateUser(ctx context.Context, storage *database.Storage, email, password, hmacSecret string) (string, error) {
 	if strings.TrimSpace(email) == "" {
 		return "", fmt.Errorf("email cannot be empty")
 	}
@@ -98,7 +98,7 @@ func AuthenticateUser(ctx context.Context, storage *database.Storage, email, pas
 		return "", fmt.Errorf("invalid password: %w", err)
 	}
 
-	tokenString, err := jwt.NewToken(user, tokenDuration)
+	tokenString, err := jwt.NewToken(user, tokenDuration, hmacSecret)
 	if err != nil {
 		log.Printf("Failed to generate JWT token for user (email=%s, id=%s): %v", email, user.ID, err)
 		return "", fmt.Errorf("failed to generate token: %w", err)

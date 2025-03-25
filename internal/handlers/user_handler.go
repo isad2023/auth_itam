@@ -5,6 +5,7 @@ import (
 	"itam_auth/internal/database"
 	"itam_auth/internal/models"
 	"itam_auth/internal/services/auth"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -72,7 +73,7 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /api/login [post]
-func Login(storage *database.Storage) gin.HandlerFunc {
+func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -81,7 +82,7 @@ func Login(storage *database.Storage) gin.HandlerFunc {
 		}
 
 		ctx := context.Background()
-		tokenString, err := auth.AuthenticateUser(ctx, storage, req.Email, req.Password)
+		tokenString, err := auth.AuthenticateUser(ctx, storage, req.Email, req.Password, hmacSecret)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password", "details": err.Error()})
 			return
@@ -212,26 +213,32 @@ func GetUser(storage *database.Storage) gin.HandlerFunc {
 // @Description Возвращает список ролей текущего пользователя
 // @Tags User
 // @Produce json
-// @Success 200 {object} map[string]string "User roles"
+// @Security BearerAuth
+// @Success 200 {array} models.UserRole "User roles"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 500 {object} map[string]string "Internal server error"
 // @Router /api/get_user_roles [get]
 func GetUserRoles(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Query("user_id")
-		if userID == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		user, exists := c.Get("user")
+		if !exists {
+			log.Printf("RequestID: %s, Error: User not authenticated, Details: User not found in context", c.GetString("request_id"))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated", "details": "User not found in context"})
 			return
 		}
-
-		uuidUserID, errUUID := uuid.Parse(userID)
-		if errUUID != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		userObj, ok := user.(models.User)
+		if !ok {
+			log.Printf("RequestID: %s, Error: Invalid user data, Details: User object is invalid", c.GetString("request_id"))
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data", "details": "User object is invalid"})
 			return
 		}
+		userID := userObj.ID
 
-		ctx := context.Background()
-		roles, err := storage.GetUserRoles(ctx, uuidUserID)
+		ctx := c.Request.Context()
+		roles, err := storage.GetUserRoles(ctx, userID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles", "details": err.Error()})
+			log.Printf("RequestID: %s, Error: Error while fetching user roles, Details: %v", c.GetString("request_id"), err)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching user roles", "details": err.Error()})
 			return
 		}
 

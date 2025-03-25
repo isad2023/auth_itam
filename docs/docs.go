@@ -737,6 +737,11 @@ const docTemplate = `{
         },
         "/api/get_user_roles": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список ролей текущего пользователя",
                 "produces": [
                     "application/json"
@@ -748,6 +753,24 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "User roles",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserRole"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1262,6 +1285,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserRole": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "roleID": {
+                    "type": "string"
+                },
+                "userID": {
                     "type": "string"
                 }
             }

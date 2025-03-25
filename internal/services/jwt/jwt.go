@@ -10,15 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-const hmacSecret = "1ca90cdb48a00815521c9380d8369bf33485a6caffd37c1a507e231be2f24df7"
-
 type Claims struct {
 	UID   string `json:"uid"`
-	Email string `json:"Email"`
+	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func NewToken(user models.User, duration time.Duration) (string, error) {
+func NewToken(user models.User, duration time.Duration, hmacSecret string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -34,7 +32,7 @@ func NewToken(user models.User, duration time.Duration) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) (models.User, error) {
+func ValidateToken(tokenString string, hmacSecret string) (models.User, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -63,7 +61,7 @@ func ValidateToken(tokenString string) (models.User, error) {
 	return authUser, nil
 }
 
-func NewRefreshToken(user models.User) (string, error) {
+func NewRefreshToken(user models.User, hmacSecret string) (string, error) {
 	claims := jwt.MapClaims{
 		"uid": user.ID.String(),
 		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
