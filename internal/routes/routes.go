@@ -71,7 +71,12 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 		}
 	}
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+		ctx.Header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+		ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		ginSwagger.WrapHandler(swaggerFiles.Handler)(ctx)
+	})
 
 	return router
 }
