@@ -20,10 +20,14 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowHeaders = []string{"*"}
-	config.AllowMethods = []string{"*"}
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "http://45.10.41.58:3000"},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * 60 * 60,
+	}
 	router.Use(cors.New(config))
 
 	api := router.Group("/api")
