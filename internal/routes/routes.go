@@ -21,10 +21,17 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	config := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://45.10.41.58:3000"},
-		AllowMethods:     []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowOrigins:     []string{
+			"http://localhost:3000",
+			"http://45.10.41.58:3000",
+			"http://localhost:8080",
+			"http://45.10.41.58:8080",
+			"http://localhost:8080/swagger",
+			"http://45.10.41.58:8080/swagger",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With", "Accept"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60,
 	}
@@ -71,12 +78,7 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 		}
 	}
 
-	router.GET("/swagger/*any", func(ctx *gin.Context) {
-		ctx.Header("Access-Control-Allow-Origin", "*")
-		ctx.Header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
-		ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		ginSwagger.WrapHandler(swaggerFiles.Handler)(ctx)
-	})
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
 }

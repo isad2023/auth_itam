@@ -12,8 +12,9 @@ import (
 // @title LiveCode API
 // @version 1.0
 // @description ITaM API
-// @host localhost:8080
+// @host 45.10.41.58:8080
 // @BasePath /
+// @schemes http
 // @securityDefinitions.oauth2.password OAuth2Password
 // @tokenUrl /api/login
 // @in header
