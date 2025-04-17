@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -56,4 +57,41 @@ type User struct {
 	Specification Specification
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+func (u *User) GetAdminServices(userRoles []UserRole, roles []Role, rolePermissions []RolePermission, permissions []Permission) []string {
+	adminServices := make(map[string]struct{})
+
+	roleMap := make(map[uuid.UUID]Role)
+	for _, r := range roles {
+		roleMap[r.ID] = r
+	}
+
+	rolePermMap := make(map[uuid.UUID][]uuid.UUID)
+	for _, rp := range rolePermissions {
+		rolePermMap[rp.RoleID] = append(rolePermMap[rp.RoleID], rp.PermissionID)
+	}
+
+	permMap := make(map[uuid.UUID]Permission)
+	for _, p := range permissions {
+		permMap[p.ID] = p
+	}
+
+	for _, ur := range userRoles {
+		if ur.UserID != u.ID {
+			continue
+		}
+		for _, permID := range rolePermMap[ur.RoleID] {
+			if perm, ok := permMap[permID]; ok && strings.HasPrefix(perm.Name, "admin_") {
+				service := strings.TrimPrefix(perm.Name, "admin_")
+				adminServices[service] = struct{}{}
+			}
+		}
+	}
+
+	result := make([]string, 0, len(adminServices))
+	for service := range adminServices {
+		result = append(result, service)
+	}
+	return result
 }

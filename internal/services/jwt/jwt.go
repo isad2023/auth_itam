@@ -11,18 +11,25 @@ import (
 )
 
 type Claims struct {
-	UID   string `json:"uid"`
-	Email string `json:"email"`
+	UID           string   `json:"uid"`
+	Email         string   `json:"email"`
+	AdminServices []string `json:"admin_services"`
 	jwt.RegisteredClaims
 }
 
-func NewToken(user models.User, duration time.Duration, hmacSecret string) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
+func NewToken(user models.User, duration time.Duration, hmacSecret string, userRoles []models.UserRole,
+	roles []models.Role, rolePermissions []models.RolePermission, permissions []models.Permission) (string, error) {
+	claims := Claims{
+		UID:           user.ID.String(),
+		Email:         user.Email,
+		AdminServices: user.GetAdminServices(userRoles, roles, rolePermissions, permissions),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["uid"] = user.ID
-	claims["email"] = user.Email
-	claims["exp"] = time.Now().Add(duration).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte(hmacSecret))
 	if err != nil {
@@ -61,10 +68,12 @@ func ValidateToken(tokenString string, hmacSecret string) (models.User, error) {
 	return authUser, nil
 }
 
-func NewRefreshToken(user models.User, hmacSecret string) (string, error) {
+func NewRefreshToken(user models.User, hmacSecret string, userRoles []models.UserRole,
+	roles []models.Role, rolePermissions []models.RolePermission, permissions []models.Permission) (string, error) {
 	claims := jwt.MapClaims{
-		"uid": user.ID.String(),
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"uid":            user.ID.String(),
+		"admin_services": user.GetAdminServices(userRoles, roles, rolePermissions, permissions),
+		"exp":            time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

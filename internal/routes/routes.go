@@ -21,7 +21,7 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	config := cors.Config{
-		AllowOrigins:     []string{
+		AllowOrigins: []string{
 			"http://localhost:3000",
 			"http://45.10.41.58:3000",
 			"http://localhost:8080",

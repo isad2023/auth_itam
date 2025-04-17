@@ -77,7 +77,7 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequest
-		
+
 		// Поддержка как JSON, так и form-data
 		if c.ContentType() == "application/json" {
 			if err := c.ShouldBindJSON(&req); err != nil {
@@ -101,8 +101,8 @@ func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 		// Формат ответа для совместимости с OAuth2
 		c.JSON(http.StatusOK, gin.H{
 			"access_token": tokenString,
-			"token_type": "Bearer",
-			"expires_in": 2592000, // 30 дней в секундах
+			"token_type":   "Bearer",
+			"expires_in":   2592000, // 30 дней в секундах
 		})
 	}
 }
@@ -276,13 +276,13 @@ func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 			return
 		}
-		
+
 		userObj, ok := user.(models.User)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
 			return
 		}
-		
+
 		uuidUserID := userObj.ID
 
 		ctx := context.Background()
@@ -326,20 +326,20 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 			return
 		}
-		
+
 		authUser, ok := userAuth.(models.User)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
 			return
 		}
-		
+
 		// Get update data from request
 		var updateData models.User
 		if err := c.ShouldBindJSON(&updateData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "details": err.Error()})
 			return
 		}
-		
+
 		// Only allow updating certain fields
 		user := models.User{
 			ID:            authUser.ID,
@@ -350,7 +350,7 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 			ResumeURL:     updateData.ResumeURL,
 			UpdatedAt:     time.Now(),
 		}
-		
+
 		// Update user in database
 		ctx := context.Background()
 		err := storage.UpdateUser(ctx, user)
@@ -358,7 +358,7 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user", "details": err.Error()})
 			return
 		}
-		
+
 		c.JSON(http.StatusOK, gin.H{"message": "User information updated successfully"})
 	}
 }
@@ -380,13 +380,13 @@ func GetCurrentUser(storage *database.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 			return
 		}
-		
+
 		userObj, ok := user.(models.User)
 		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user data"})
 			return
 		}
-		
+
 		// Get full user information from database
 		ctx := context.Background()
 		fullUser, err := storage.GetUserByID(ctx, userObj.ID)
@@ -394,10 +394,10 @@ func GetCurrentUser(storage *database.Storage) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user data", "details": err.Error()})
 			return
 		}
-		
+
 		// Remove sensitive information
 		fullUser.PasswordHash = ""
-		
+
 		c.JSON(http.StatusOK, fullUser)
 	}
 }

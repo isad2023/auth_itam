@@ -20,6 +20,7 @@ const (
 	tokenDuration            = 30 * 24 * time.Hour // Длительность действия токена (30 дней)
 	minPasswordLength        = 8                   // Минимальная длина пароля
 	bcryptCost               = bcrypt.DefaultCost  // Стоимость хеширования пароля
+	defaultRoleName          = "User"              // Роль по умолчанию для новых пользователей
 )
 
 func validateUserData(name, email, password string) error {
@@ -67,6 +68,24 @@ func RegisterUser(ctx context.Context, storage *database.Storage, name, email, p
 		return models.User{}, fmt.Errorf("failed to save user: %w", err)
 	}
 
+	role, err := storage.GetRoleByName(ctx, defaultRoleName)
+	if err != nil {
+		log.Printf("Failed to get default role '%s' for user (email=%s, id=%s): %v", defaultRoleName, email, userID, err)
+		return models.User{}, fmt.Errorf("failed to get default role: %w", err)
+	}
+
+	userRole := models.UserRole{
+		ID:     uuid.New(),
+		UserID: userID,
+		RoleID: role.ID,
+	}
+
+	_, err = storage.SaveUserRole(ctx, userRole)
+	if err != nil {
+		log.Printf("Failed to save user role for user (email=%s, id=%s): %v", email, userID, err)
+		return models.User{}, fmt.Errorf("failed to save user role: %w", err)
+	}
+
 	log.Printf("User registered successfully (email=%s, id=%s)", email, userID)
 	return user, nil
 }
@@ -94,7 +113,39 @@ func AuthenticateUser(ctx context.Context, storage *database.Storage, email, pas
 		return "", fmt.Errorf("invalid password: %w", err)
 	}
 
-	tokenString, err := jwt.NewToken(user, tokenDuration, hmacSecret)
+	userRoles, err := storage.GetUserRoles(ctx, user.ID)
+	if err != nil {
+		log.Printf("Failed to get user roles for user (email=%s, id=%s): %v", email, user.ID, err)
+		return "", fmt.Errorf("failed to get user roles: %w", err)
+	}
+
+	roleIDs := make([]uuid.UUID, len(userRoles))
+	for i, ur := range userRoles {
+		roleIDs[i] = ur.RoleID
+	}
+	roles, err := storage.GetRolesByIDs(ctx, roleIDs)
+	if err != nil {
+		log.Printf("Failed to get roles for user (email=%s, id=%s): %v", email, user.ID, err)
+		return "", fmt.Errorf("failed to get roles: %w", err)
+	}
+
+	rolePermissions, err := storage.GetRolePermissions(ctx, roleIDs[0])
+	if err != nil {
+		log.Printf("Failed to get role permissions for user (email=%s, id=%s): %v", email, user.ID, err)
+		return "", fmt.Errorf("failed to get role permissions: %w", err)
+	}
+
+	permissionIDs := make([]uuid.UUID, len(rolePermissions))
+	for i, rp := range rolePermissions {
+		permissionIDs[i] = rp.PermissionID
+	}
+	permissions, err := storage.GetPermissionsByIDs(ctx, permissionIDs)
+	if err != nil {
+		log.Printf("Failed to get permissions for user (email=%s, id=%s): %v", email, user.ID, err)
+		return "", fmt.Errorf("failed to get permissions: %w", err)
+	}
+
+	tokenString, err := jwt.NewToken(user, tokenDuration, hmacSecret, userRoles, roles, rolePermissions, permissions)
 	if err != nil {
 		log.Printf("Failed to generate JWT token for user (email=%s, id=%s): %v", email, user.ID, err)
 		return "", fmt.Errorf("failed to generate token: %w", err)
