@@ -24,7 +24,7 @@ import (
 // @Success 201 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/create_notification [post]
+// @Router /auth/api/create_notification [post]
 func CreateNotification(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var notification models.Notification
@@ -61,7 +61,7 @@ func CreateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/update_notification [patch]
+// @Router /auth/api/update_notification [patch]
 func UpdateNotification(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var notification models.Notification
@@ -97,7 +97,7 @@ func UpdateNotification(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {array} models.Notification "List of notifications"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_all_notifications [get]
+// @Router /auth/api/get_all_notifications [get]
 func GetAllNotifications(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		limit, err := parseIntQuery(c, "limit", 10)
@@ -146,7 +146,7 @@ func GetAllNotifications(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid notification ID"
 // @Failure 404 {object} map[string]string "Notification not found"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_notification/{notification_id} [get]
+// @Router /auth/api/get_notification/{notification_id} [get]
 func GetNotification(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		notificationID := c.Param("notification_id")
@@ -181,7 +181,7 @@ func GetNotification(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid notification ID"
 // @Failure 404 {object} map[string]string "Notification not found"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/delete_notification [delete]
+// @Router /auth/api/delete_notification [delete]
 func DeleteNotification(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		notificationID := c.Query("notification_id")

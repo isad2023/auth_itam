@@ -38,7 +38,7 @@ func parseIntQuery(c *gin.Context, paramName string, defaultValue int) (int, err
 // @Success 201 {object} map[string]interface{} "Success message with ID"
 // @Failure 400 {object} map[string]string "Invalid title or points"
 // @Failure 500 {object} map[string]string "Failed to save achievement"
-// @Router /api/create_achievement [post]
+// @Router /auth/api/create_achievement [post]
 func CreateAchievement(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var achievement models.Achievement
@@ -75,7 +75,7 @@ func CreateAchievement(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid achievement ID or data"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/update_achievement [patch]
+// @Router /auth/api/update_achievement [patch]
 func UpdateAchievement(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var achievement models.Achievement
@@ -109,7 +109,7 @@ func UpdateAchievement(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {array} models.Achievement "List of all achievements"
 // @Failure 400 {object} map[string]string "Invalid pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_all_achievements [get]
+// @Router /auth/api/get_all_achievements [get]
 func GetAllAchievements(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		limit, err := parseIntQuery(c, "limit", 10)
@@ -143,7 +143,7 @@ func GetAllAchievements(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid achievement ID"
 // @Failure 404 {object} map[string]string "Achievement not found"
 // @Failure 500 {object} map[string]string "Error while fetching achievement"
-// @Router /api/get_achievement [get]
+// @Router /auth/api/get_achievement [get]
 func GetAchievementByID(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Query("achievement_id")
@@ -179,7 +179,7 @@ func GetAchievementByID(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {array} models.Achievement "List of achievements"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_user_achievements [get]
+// @Router /auth/api/get_user_achievements [get]
 func GetAchievementsByUserID(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Query("user_id")
@@ -219,7 +219,7 @@ func GetAchievementsByUserID(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid achievement ID"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/delete_achievement [delete]
+// @Router /auth/api/delete_achievement [delete]
 func DeleteAchievement(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Query("achievement_id")

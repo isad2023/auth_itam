@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/create_achievement": {
+        "/auth/api/create_achievement": {
             "post": {
                 "security": [
                     {
@@ -73,7 +73,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create_notification": {
+        "/auth/api/create_notification": {
             "post": {
                 "security": [
                     {
@@ -133,7 +133,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create_user_request": {
+        "/auth/api/create_user_request": {
             "post": {
                 "security": [
                     {
@@ -200,7 +200,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/delete_achievement": {
+        "/auth/api/delete_achievement": {
             "delete": {
                 "security": [
                     {
@@ -255,7 +255,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/delete_notification": {
+        "/auth/api/delete_notification": {
             "delete": {
                 "security": [
                     {
@@ -319,7 +319,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/delete_request": {
+        "/auth/api/delete_request": {
             "delete": {
                 "security": [
                     {
@@ -383,7 +383,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_achievement": {
+        "/auth/api/get_achievement": {
             "get": {
                 "security": [
                     {
@@ -444,7 +444,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_all_achievements": {
+        "/auth/api/get_all_achievements": {
             "get": {
                 "security": [
                     {
@@ -506,7 +506,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_all_notifications": {
+        "/auth/api/get_all_notifications": {
             "get": {
                 "security": [
                     {
@@ -574,7 +574,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_all_requests": {
+        "/auth/api/get_all_requests": {
             "get": {
                 "security": [
                     {
@@ -641,7 +641,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_notification/{notification_id}": {
+        "/auth/api/get_notification/{notification_id}": {
             "get": {
                 "security": [
                     {
@@ -702,7 +702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_request": {
+        "/auth/api/get_request": {
             "get": {
                 "security": [
                     {
@@ -769,7 +769,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_user/{user_id}": {
+        "/auth/api/get_user/{user_id}": {
             "get": {
                 "description": "Возвращает данные текущего пользователя",
                 "produces": [
@@ -816,7 +816,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_user_achievements": {
+        "/auth/api/get_user_achievements": {
             "get": {
                 "security": [
                     {
@@ -885,7 +885,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_user_properties": {
+        "/auth/api/get_user_properties": {
             "get": {
                 "security": [
                     {
@@ -913,7 +913,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/get_user_roles": {
+        "/auth/api/get_user_roles": {
             "get": {
                 "security": [
                     {
@@ -959,7 +959,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/login": {
+        "/auth/api/login": {
             "post": {
                 "description": "Авторизация пользователя с использованием логина и пароля",
                 "consumes": [
@@ -1022,7 +1022,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/me": {
+        "/auth/api/me": {
             "get": {
                 "security": [
                     {
@@ -1065,7 +1065,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/ping": {
+        "/auth/api/ping": {
             "get": {
                 "description": "Проверяет доступность сервера",
                 "produces": [
@@ -1088,7 +1088,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/register": {
+        "/auth/api/register": {
             "post": {
                 "description": "Регистрация нового пользователя в системе",
                 "consumes": [
@@ -1143,7 +1143,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/update_achievement": {
+        "/auth/api/update_achievement": {
             "patch": {
                 "security": [
                     {
@@ -1203,7 +1203,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/update_notification": {
+        "/auth/api/update_notification": {
             "patch": {
                 "security": [
                     {
@@ -1263,7 +1263,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/update_request_status": {
+        "/auth/api/update_request_status": {
             "patch": {
                 "security": [
                     {
@@ -1323,7 +1323,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/update_user_info": {
+        "/auth/api/update_user_info": {
             "patch": {
                 "security": [
                     {
@@ -1593,7 +1593,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "45.10.41.58:8080",
+	Host:             "109.73.202.151:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "LiveCode API",

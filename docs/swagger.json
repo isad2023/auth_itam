@@ -9,10 +9,10 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "45.10.41.58:8080",
+    "host": "109.73.202.151:8080",
     "basePath": "/",
     "paths": {
-        "/api/create_achievement": {
+        "/auth/api/create_achievement": {
             "post": {
                 "security": [
                     {
@@ -70,7 +70,7 @@
                 }
             }
         },
-        "/api/create_notification": {
+        "/auth/api/create_notification": {
             "post": {
                 "security": [
                     {
@@ -130,7 +130,7 @@
                 }
             }
         },
-        "/api/create_user_request": {
+        "/auth/api/create_user_request": {
             "post": {
                 "security": [
                     {
@@ -197,7 +197,7 @@
                 }
             }
         },
-        "/api/delete_achievement": {
+        "/auth/api/delete_achievement": {
             "delete": {
                 "security": [
                     {
@@ -252,7 +252,7 @@
                 }
             }
         },
-        "/api/delete_notification": {
+        "/auth/api/delete_notification": {
             "delete": {
                 "security": [
                     {
@@ -316,7 +316,7 @@
                 }
             }
         },
-        "/api/delete_request": {
+        "/auth/api/delete_request": {
             "delete": {
                 "security": [
                     {
@@ -380,7 +380,7 @@
                 }
             }
         },
-        "/api/get_achievement": {
+        "/auth/api/get_achievement": {
             "get": {
                 "security": [
                     {
@@ -441,7 +441,7 @@
                 }
             }
         },
-        "/api/get_all_achievements": {
+        "/auth/api/get_all_achievements": {
             "get": {
                 "security": [
                     {
@@ -503,7 +503,7 @@
                 }
             }
         },
-        "/api/get_all_notifications": {
+        "/auth/api/get_all_notifications": {
             "get": {
                 "security": [
                     {
@@ -571,7 +571,7 @@
                 }
             }
         },
-        "/api/get_all_requests": {
+        "/auth/api/get_all_requests": {
             "get": {
                 "security": [
                     {
@@ -638,7 +638,7 @@
                 }
             }
         },
-        "/api/get_notification/{notification_id}": {
+        "/auth/api/get_notification/{notification_id}": {
             "get": {
                 "security": [
                     {
@@ -699,7 +699,7 @@
                 }
             }
         },
-        "/api/get_request": {
+        "/auth/api/get_request": {
             "get": {
                 "security": [
                     {
@@ -766,7 +766,7 @@
                 }
             }
         },
-        "/api/get_user/{user_id}": {
+        "/auth/api/get_user/{user_id}": {
             "get": {
                 "description": "Возвращает данные текущего пользователя",
                 "produces": [
@@ -813,7 +813,7 @@
                 }
             }
         },
-        "/api/get_user_achievements": {
+        "/auth/api/get_user_achievements": {
             "get": {
                 "security": [
                     {
@@ -882,7 +882,7 @@
                 }
             }
         },
-        "/api/get_user_properties": {
+        "/auth/api/get_user_properties": {
             "get": {
                 "security": [
                     {
@@ -910,7 +910,7 @@
                 }
             }
         },
-        "/api/get_user_roles": {
+        "/auth/api/get_user_roles": {
             "get": {
                 "security": [
                     {
@@ -956,7 +956,7 @@
                 }
             }
         },
-        "/api/login": {
+        "/auth/api/login": {
             "post": {
                 "description": "Авторизация пользователя с использованием логина и пароля",
                 "consumes": [
@@ -1019,7 +1019,7 @@
                 }
             }
         },
-        "/api/me": {
+        "/auth/api/me": {
             "get": {
                 "security": [
                     {
@@ -1062,7 +1062,7 @@
                 }
             }
         },
-        "/api/ping": {
+        "/auth/api/ping": {
             "get": {
                 "description": "Проверяет доступность сервера",
                 "produces": [
@@ -1085,7 +1085,7 @@
                 }
             }
         },
-        "/api/register": {
+        "/auth/api/register": {
             "post": {
                 "description": "Регистрация нового пользователя в системе",
                 "consumes": [
@@ -1140,7 +1140,7 @@
                 }
             }
         },
-        "/api/update_achievement": {
+        "/auth/api/update_achievement": {
             "patch": {
                 "security": [
                     {
@@ -1200,7 +1200,7 @@
                 }
             }
         },
-        "/api/update_notification": {
+        "/auth/api/update_notification": {
             "patch": {
                 "security": [
                     {
@@ -1260,7 +1260,7 @@
                 }
             }
         },
-        "/api/update_request_status": {
+        "/auth/api/update_request_status": {
             "patch": {
                 "security": [
                     {
@@ -1320,7 +1320,7 @@
                 }
             }
         },
-        "/api/update_user_info": {
+        "/auth/api/update_user_info": {
             "patch": {
                 "security": [
                     {

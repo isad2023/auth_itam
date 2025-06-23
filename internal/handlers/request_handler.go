@@ -34,7 +34,7 @@ type UpdateRequestStatusRequest struct {
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/create_user_request [post]
+// @Router /auth/api/create_user_request [post]
 func CreateUserRequest(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input CreateRequestInput
@@ -90,7 +90,7 @@ func CreateUserRequest(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]interface{} "Request data"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_request [get]
+// @Router /auth/api/get_request [get]
 func GetRequest(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, err := uuid.Parse(c.Query("user_id"))
@@ -133,7 +133,7 @@ func GetRequest(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]interface{} "All requests"
 // @Failure 400 {object} map[string]string "Invalid user ID or pagination parameters"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_all_requests [get]
+// @Router /auth/api/get_all_requests [get]
 func GetAllRequests(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, err := uuid.Parse(c.Query("user_id"))
@@ -175,7 +175,7 @@ func GetAllRequests(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} map[string]string "Success message"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/update_request_status [patch]
+// @Router /auth/api/update_request_status [patch]
 func UpdateRequestStatus(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
@@ -209,7 +209,7 @@ func UpdateRequestStatus(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid request ID"
 // @Failure 404 {object} map[string]string "Request not found"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/delete_request [delete]
+// @Router /auth/api/delete_request [delete]
 func DeleteRequest(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestIDParam := c.Query("request_id")

@@ -126,14 +126,14 @@ definitions:
       userID:
         type: string
     type: object
-host: 45.10.41.58:8080
+host: 109.73.202.151:8080
 info:
   contact: {}
   description: ITaM API
   title: LiveCode API
   version: "1.0"
 paths:
-  /api/create_achievement:
+  /auth/api/create_achievement:
     post:
       consumes:
       - application/json
@@ -170,7 +170,7 @@ paths:
       summary: Создать достижение
       tags:
       - Achievements
-  /api/create_notification:
+  /auth/api/create_notification:
     post:
       consumes:
       - application/json
@@ -208,7 +208,7 @@ paths:
       summary: Создать уведомление
       tags:
       - Notifications
-  /api/create_user_request:
+  /auth/api/create_user_request:
     post:
       consumes:
       - application/json
@@ -251,7 +251,7 @@ paths:
       summary: Создать запрос пользователя
       tags:
       - Requests
-  /api/delete_achievement:
+  /auth/api/delete_achievement:
     delete:
       description: Удаляет достижение по его ID
       parameters:
@@ -286,7 +286,7 @@ paths:
       summary: Удалить достижение
       tags:
       - Achievements
-  /api/delete_notification:
+  /auth/api/delete_notification:
     delete:
       description: Удаляет уведомление по ID
       parameters:
@@ -327,7 +327,7 @@ paths:
       summary: Удалить уведомление
       tags:
       - Notifications
-  /api/delete_request:
+  /auth/api/delete_request:
     delete:
       description: Удаляет запрос по его ID
       parameters:
@@ -368,7 +368,7 @@ paths:
       summary: Удалить запрос
       tags:
       - Requests
-  /api/get_achievement:
+  /auth/api/get_achievement:
     get:
       description: Возвращает информацию о конкретном достижении
       parameters:
@@ -407,7 +407,7 @@ paths:
       summary: Получить достижение
       tags:
       - Achievements
-  /api/get_all_achievements:
+  /auth/api/get_all_achievements:
     get:
       description: Возвращает список всех достижений с пагинацией
       parameters:
@@ -447,7 +447,7 @@ paths:
       summary: Получить все достижения
       tags:
       - Achievements
-  /api/get_all_notifications:
+  /auth/api/get_all_notifications:
     get:
       description: Возвращает список всех уведомлений или уведомлений пользователя
         с пагинацией
@@ -492,7 +492,7 @@ paths:
       summary: Получить все уведомления
       tags:
       - Notifications
-  /api/get_all_requests:
+  /auth/api/get_all_requests:
     get:
       description: Возвращает список всех запросов текущего пользователя с пагинацией
       parameters:
@@ -536,7 +536,7 @@ paths:
       summary: Получить все запросы пользователя
       tags:
       - Requests
-  /api/get_notification/{notification_id}:
+  /auth/api/get_notification/{notification_id}:
     get:
       description: Возвращает уведомление по его ID
       parameters:
@@ -575,7 +575,7 @@ paths:
       summary: Получить уведомление по ID
       tags:
       - Notifications
-  /api/get_request:
+  /auth/api/get_request:
     get:
       description: Возвращает список запросов пользователя с пагинацией
       parameters:
@@ -619,7 +619,7 @@ paths:
       summary: Получить запросы пользователя
       tags:
       - Requests
-  /api/get_user/{user_id}:
+  /auth/api/get_user/{user_id}:
     get:
       description: Возвращает данные текущего пользователя
       parameters:
@@ -650,7 +650,7 @@ paths:
       summary: Получить информацию о пользователе
       tags:
       - User
-  /api/get_user_achievements:
+  /auth/api/get_user_achievements:
     get:
       description: Возвращает список достижений пользователя с пагинацией
       parameters:
@@ -695,7 +695,7 @@ paths:
       summary: Получить достижения пользователя
       tags:
       - Achievements
-  /api/get_user_properties:
+  /auth/api/get_user_properties:
     get:
       description: Возвращает список свойств текущего пользователя
       produces:
@@ -712,7 +712,7 @@ paths:
       summary: Получить свойства пользователя
       tags:
       - User
-  /api/get_user_roles:
+  /auth/api/get_user_roles:
     get:
       description: Возвращает список ролей текущего пользователя
       produces:
@@ -741,7 +741,7 @@ paths:
       summary: Получить роли пользователя
       tags:
       - User
-  /api/login:
+  /auth/api/login:
     post:
       consumes:
       - application/json
@@ -783,7 +783,7 @@ paths:
       summary: Логин пользователя
       tags:
       - User
-  /api/me:
+  /auth/api/me:
     get:
       description: Возвращает данные авторизованного пользователя
       produces:
@@ -810,7 +810,7 @@ paths:
       summary: Получить информацию о текущем пользователе
       tags:
       - User
-  /api/ping:
+  /auth/api/ping:
     get:
       description: Проверяет доступность сервера
       produces:
@@ -825,7 +825,7 @@ paths:
       summary: Пинг-сервис
       tags:
       - Health
-  /api/register:
+  /auth/api/register:
     post:
       consumes:
       - application/json
@@ -861,7 +861,7 @@ paths:
       summary: Регистрация нового пользователя
       tags:
       - User
-  /api/update_achievement:
+  /auth/api/update_achievement:
     patch:
       consumes:
       - application/json
@@ -899,7 +899,7 @@ paths:
       summary: Обновить достижение
       tags:
       - Achievements
-  /api/update_notification:
+  /auth/api/update_notification:
     patch:
       consumes:
       - application/json
@@ -937,7 +937,7 @@ paths:
       summary: Обновить уведомление
       tags:
       - Notifications
-  /api/update_request_status:
+  /auth/api/update_request_status:
     patch:
       consumes:
       - application/json
@@ -975,7 +975,7 @@ paths:
       summary: Обновить статус запроса
       tags:
       - Requests
-  /api/update_user_info:
+  /auth/api/update_user_info:
     patch:
       consumes:
       - application/json

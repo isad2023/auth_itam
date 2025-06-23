@@ -43,7 +43,7 @@ type LoginRequest struct {
 // @Success 201 {object} map[string]string "Success message with user data"
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/register [post]
+// @Router /auth/api/register [post]
 func Register(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req RegisterRequest
@@ -73,7 +73,7 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/login [post]
+// @Router /auth/api/login [post]
 func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequest
@@ -203,7 +203,7 @@ func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 // @Success 200 {object} models.User "User data"
 // @Failure 400 {object} map[string]string "Invalid user ID"
 // @Failure 404 {object} map[string]string "User not found"
-// @Router /api/get_user/{user_id} [get]
+// @Router /auth/api/get_user/{user_id} [get]
 func GetUser(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.Param("user_id")
@@ -232,7 +232,7 @@ func GetUser(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {array} models.UserRole "User roles"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/get_user_roles [get]
+// @Router /auth/api/get_user_roles [get]
 func GetUserRoles(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
@@ -267,7 +267,7 @@ func GetUserRoles(storage *database.Storage) gin.HandlerFunc {
 // @Produce json
 // @Security OAuth2Password
 // @Success 200 {object} map[string]string "User properties"
-// @Router /api/get_user_properties [get]
+// @Router /auth/api/get_user_properties [get]
 func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the user from context that was set by AuthMiddleware
@@ -317,7 +317,7 @@ func GetUserPermissions(storage *database.Storage) gin.HandlerFunc {
 // @Failure 400 {object} map[string]string "Invalid request"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/update_user_info [patch]
+// @Router /auth/api/update_user_info [patch]
 func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get authenticated user from context
@@ -371,7 +371,7 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 // @Success 200 {object} models.User "User data"
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/me [get]
+// @Router /auth/api/me [get]
 func GetCurrentUser(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the user from context that was set by AuthMiddleware
