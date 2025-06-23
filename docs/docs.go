@@ -1585,7 +1585,7 @@ const docTemplate = `{
         "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
-            "tokenUrl": "/api/login"
+            "tokenUrl": "/auth/api/login"
         }
     }
 }`

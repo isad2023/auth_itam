@@ -1024,6 +1024,6 @@ schemes:
 securityDefinitions:
   OAuth2Password:
     flow: password
-    tokenUrl: /api/login
+    tokenUrl: /auth/api/login
     type: oauth2
 swagger: "2.0"
