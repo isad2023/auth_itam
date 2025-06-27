@@ -23,15 +23,17 @@ import (
 // 	Hash      string `json:"hash"`
 // }
 
+// RegisterRequest представляет запрос на регистрацию пользователя
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Name     string `json:"name" binding:"required" example:"John Doe"`
+	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
+	Password string `json:"password" binding:"required" example:"password123"`
 }
 
+// LoginRequest представляет запрос на авторизацию
 type LoginRequest struct {
-	Email    string `json:"email" form:"username" binding:"required,email"`
-	Password string `json:"password" form:"password" binding:"required"`
+	Email    string `json:"email" form:"username" binding:"required,email" example:"john@example.com"`
+	Password string `json:"password" form:"password" binding:"required" example:"password123"`
 }
 
 // @Summary Регистрация нового пользователя
@@ -40,9 +42,9 @@ type LoginRequest struct {
 // @Accept json
 // @Produce json
 // @Param register body handlers.RegisterRequest true "User registration details"
-// @Success 201 {object} map[string]string "Success message with user data"
-// @Failure 400 {object} map[string]string "Invalid request"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 201 {object} models.RegisterResponse "Success message with user data"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /auth/api/register [post]
 func Register(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -69,10 +71,10 @@ func Register(storage *database.Storage) gin.HandlerFunc {
 // @Accept json,x-www-form-urlencoded
 // @Produce json
 // @Param login body handlers.LoginRequest true "Login credentials"
-// @Success 200 {object} map[string]interface{} "JWT token"
-// @Failure 400 {object} map[string]string "Invalid request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 200 {object} models.LoginResponse "JWT token"
+// @Failure 400 {object} models.ErrorResponse "Invalid request"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /auth/api/login [post]
 func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -196,13 +198,13 @@ func Login(storage *database.Storage, hmacSecret string) gin.HandlerFunc {
 // }
 
 // @Summary Получить информацию о пользователе
-// @Description Возвращает данные текущего пользователя
+// @Description Возвращает данные пользователя по ID
 // @Tags User
 // @Produce json
-// @Param user_id path string true "User ID"
+// @Param user_id path string true "User ID (UUID)"
 // @Success 200 {object} models.User "User data"
-// @Failure 400 {object} map[string]string "Invalid user ID"
-// @Failure 404 {object} map[string]string "User not found"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID"
+// @Failure 404 {object} models.ErrorResponse "User not found"
 // @Router /auth/api/get_user/{user_id} [get]
 func GetUser(storage *database.Storage) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -67,3 +67,5 @@ func applyMigration(m *migrate.Migrate, direction string) error {
 	}
 	return nil
 }
+
+// go run cmd/migrator/main.go --db-user="yourname" --db-pass="pass" --db-name="example" --db-host=localhost --migrations-path="./migrations"

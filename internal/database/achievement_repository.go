@@ -12,19 +12,19 @@ import (
 
 const (
 	saveAchievementQuery = `INSERT INTO achievements 
-		(id, title, description, points, approved, created_by, created_at) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	getAchievementByIDQuery = `SELECT id, title, description, points, approved, created_by, created_at 
+		(id, title, description, points, approved, image_url, created_by, created_at) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	getAchievementByIDQuery = `SELECT id, title, description, points, approved, image_url, created_by, created_at 
 		FROM achievements WHERE id = $1`
-	getAllAchievementsQuery = `SELECT id, title, description, points, approved, created_by, created_at 
+	getAllAchievementsQuery = `SELECT id, title, description, points, approved, image_url, created_by, created_at 
 		FROM achievements LIMIT $1 OFFSET $2`
 	updateAchievementQuery = `UPDATE achievements 
-		SET title = $1, description = $2, points = $3, approved = $4, created_by = $5, created_at = $6 
-		WHERE id = $7`
+		SET title = $1, description = $2, points = $3, approved = $4, image_url = $5, created_by = $6, created_at = $7 
+		WHERE id = $8`
 	deleteAchievementQuery       = `DELETE FROM achievements WHERE id = $1`
 	getAchievementsByUserIDQuery = `
 		SELECT achievements.id, achievements.title, achievements.description, achievements.points, 
-			achievements.approved, achievements.created_by, achievements.created_at 
+			achievements.approved, achievements.image_url, achievements.created_by, achievements.created_at 
 		FROM achievements
 		JOIN user_achievements ON achievements.id = user_achievements.achievement_id
 		WHERE user_achievements.user_id = $1
@@ -44,6 +44,7 @@ func validateAchievement(achievement models.Achievement) error {
 func scanAchievement(row interface{ Scan(...any) error }) (models.Achievement, error) {
 	var achievement models.Achievement
 	var description sql.NullString
+	var imageURL sql.NullString
 
 	err := row.Scan(
 		&achievement.ID,
@@ -51,6 +52,7 @@ func scanAchievement(row interface{ Scan(...any) error }) (models.Achievement, e
 		&description,
 		&achievement.Points,
 		&achievement.Approved,
+		&imageURL,
 		&achievement.CreatedBy,
 		&achievement.CreatedAt,
 	)
@@ -62,6 +64,12 @@ func scanAchievement(row interface{ Scan(...any) error }) (models.Achievement, e
 		achievement.Description = &description.String
 	} else {
 		achievement.Description = nil
+	}
+
+	if imageURL.Valid {
+		achievement.ImageURL = &imageURL.String
+	} else {
+		achievement.ImageURL = nil
 	}
 
 	return achievement, nil
@@ -90,6 +98,7 @@ func (s *Storage) SaveAchievement(ctx context.Context, achievement models.Achiev
 		achievement.Description,
 		achievement.Points,
 		achievement.Approved,
+		achievement.ImageURL,
 		achievement.CreatedBy,
 		achievement.CreatedAt,
 	)
@@ -182,6 +191,7 @@ func (s *Storage) UpdateAchievement(ctx context.Context, achievement models.Achi
 		achievement.Description,
 		achievement.Points,
 		achievement.Approved,
+		achievement.ImageURL,
 		achievement.CreatedBy,
 		achievement.CreatedAt,
 		achievement.ID,

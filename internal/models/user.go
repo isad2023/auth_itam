@@ -45,18 +45,19 @@ func (s Specification) Value() (driver.Value, error) {
 	}
 }
 
+// User представляет пользователя системы
 type User struct {
-	ID            uuid.UUID
-	Name          string
-	Email         string
-	Telegram      *string
-	PasswordHash  string
-	PhotoURL      *string
-	About         *string
-	ResumeURL     *string
-	Specification Specification
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            uuid.UUID `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Name          string    `json:"name" example:"John Doe"`
+	Email         string    `json:"email" example:"john@example.com"`
+	Telegram      *string   `json:"telegram,omitempty" example:"@johndoe"`
+	PasswordHash  string    `json:"-"` // Не отображается в JSON
+	PhotoURL      *string   `json:"photo_url,omitempty" example:"/uploads/profile.jpg"`
+	About         *string   `json:"about,omitempty" example:"Software developer with 5 years of experience"`
+	ResumeURL     *string   `json:"resume_url,omitempty" example:"/uploads/resume.pdf"`
+	Specification Specification `json:"specification" example:"Backend"`
+	CreatedAt     time.Time `json:"created_at" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt     time.Time `json:"updated_at" example:"2023-01-01T00:00:00Z"`
 }
 
 func (u *User) GetAdminServices(userRoles []UserRole, roles []Role, rolePermissions []RolePermission, permissions []Permission) []string {

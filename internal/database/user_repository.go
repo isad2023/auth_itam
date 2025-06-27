@@ -13,7 +13,7 @@ import (
 const (
 	saveNewUserQuery = `INSERT INTO users (id, name, email, password_hash, specification, created_at, updated_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	getUserByIDQuery    = `SELECT id, name, email, password_hash, specification, created_at, updated_at FROM users WHERE id = $1`
+	getUserByIDQuery    = `SELECT id, name, email, telegram, password_hash, photo_url, about, resume_url, specification, created_at, updated_at FROM users WHERE id = $1`
 	getUserByEmailQuery = `SELECT id, name, email, password_hash FROM users WHERE email = $1`
 	updateUserQuery     = `UPDATE users SET name = $1, specification = $2, about = $3, photo_url = $4, resume_url = $5, updated_at = $6 WHERE id = $7`
 )
@@ -38,7 +38,7 @@ func (s *Storage) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, e
 	row := s.db.QueryRowContext(ctx, getUserByIDQuery, id)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Specification, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Telegram, &user.PasswordHash, &user.PhotoURL, &user.About, &user.ResumeURL, &user.Specification, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return user, fmt.Errorf("user not found")

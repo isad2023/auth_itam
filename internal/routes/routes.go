@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"itam_auth/internal/config"
 	"itam_auth/internal/database"
 	"itam_auth/internal/handlers"
 	"itam_auth/internal/middleware"
+	"itam_auth/internal/services/file"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -11,7 +13,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
+func SetupRoutes(storage *database.Storage, hmacSecret string, cfg *config.AppConfig) *gin.Engine {
 
 	// gin.SetMode(gin.ReleaseMode)
 
@@ -36,6 +38,9 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 		MaxAge:           12 * 60 * 60,
 	}
 	router.Use(cors.New(config))
+
+	// Инициализируем файловый сервис
+	fileService := file.NewFileService(cfg)
 
 	auth := router.Group("/auth")
 	{
@@ -77,11 +82,21 @@ func SetupRoutes(storage *database.Storage, hmacSecret string) *gin.Engine {
 				protected.GET("/get_all_notifications", handlers.GetAllNotifications(storage))
 				protected.GET("/get_notification/:notification_id", handlers.GetNotification(storage))
 				protected.DELETE("/delete_notification", handlers.DeleteNotification(storage))
+
+				//* FILE ROUTES
+				protected.POST("/upload_profile_image", handlers.UploadProfileImage(storage, fileService))
+				protected.POST("/upload_achievement_image", handlers.UploadAchievementImage(storage, fileService))
+				protected.POST("/upload_resume", handlers.UploadResume(storage, fileService))
+				protected.GET("/get_user_files", handlers.GetUserFiles(storage))
+				protected.DELETE("/delete_file/:file_id", handlers.DeleteFile(storage, fileService))
 			}
 		}
 
 		auth.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	// Статические файлы для загрузок
+	router.GET("/uploads/:filename", handlers.ServeFile(cfg))
 
 	return router
 }
