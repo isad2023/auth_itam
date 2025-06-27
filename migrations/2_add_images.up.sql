@@ -1,18 +1,18 @@
 -- Добавляем поле для изображения достижения
-ALTER TABLE achievements ADD COLUMN image_url VARCHAR(500);
+ALTER TABLE achievements ADD COLUMN image_url TEXT;
 
 -- Создаем таблицу для хранения информации о загруженных файлах
 CREATE TABLE file_uploads (
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    file_name VARCHAR(255) NOT NULL,
-    original_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    file_size BIGINT NOT NULL,
-    mime_type VARCHAR(100) NOT NULL,
-    upload_type VARCHAR(50) NOT NULL, -- 'profile_image', 'achievement_image', etc.
+    user_id UUID REFERENCES users(id),
+    file_name TEXT NOT NULL,
+    original_name TEXT,
+    file_path TEXT,
+    file_size BIGINT,
+    mime_type TEXT,
+    upload_type TEXT, -- 'profile_image', 'achievement_image', etc.
     entity_id UUID, -- ID связанной сущности (achievement_id, user_id, etc.)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Создаем индекс для быстрого поиска файлов по пользователю

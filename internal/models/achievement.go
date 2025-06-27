@@ -9,6 +9,7 @@ import (
 // Achievement представляет достижение пользователя
 type Achievement struct {
 	ID          uuid.UUID `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	UserID      uuid.UUID `json:"user_id" example:"550e8400-e29b-41d4-a716-446655440000"`
 	Title       string    `json:"title" example:"First Project"`
 	Description *string   `json:"description,omitempty" example:"Successfully completed first project"`
 	Points      float64   `json:"points" example:"100.0"`

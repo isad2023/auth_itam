@@ -34,8 +34,11 @@
             <label>Telegram
               <input v-model="form.telegram" type="text" />
             </label>
-            <label>Резюме (URL)
-              <input v-model="form.resumeURL" type="text" />
+            <label>Резюме (PDF)
+              <input type="file" accept="application/pdf" @change="onResumeChange" />
+              <span v-if="resumeName">{{ resumeName }}</span>
+              <a v-if="user?.resumeURL" :href="user.resumeURL" target="_blank">Скачать резюме</a>
+              <button v-if="user?.resumeURL" type="button" @click="removeResume">Удалить</button>
             </label>
             <div class="form-actions">
               <button type="submit" class="save-btn" :disabled="!isChanged || loading">Сохранить</button>
@@ -132,8 +135,10 @@ export default {
       notification: '',
       notificationType: 'info',
       loading: false,
-      photoPreview: '',
       photoFile: null,
+      photoPreview: '',
+      resumeFile: null,
+      resumeName: '',
       achievements: [],
       showAchForm: false,
       newAch: { event: '', title: '', date: '', points: '' },
@@ -151,7 +156,8 @@ export default {
         this.form.about !== (this.user.about || '') ||
         this.form.telegram !== (this.user.telegram || '') ||
         this.form.specification !== (this.user.specification || '') ||
-        this.photoFile !== null
+        this.photoFile !== null ||
+        this.resumeFile !== null
       )
     },
     initials() {
@@ -168,12 +174,12 @@ export default {
       })
       if (!res.ok) throw new Error('Ошибка получения профиля')
       this.user = await res.json()
-      this.form.name = this.user.Name || ''
-      this.form.email = this.user.Email || ''
-      this.form.specification = this.user.Specification || ''
-      this.form.about = this.user.About || ''
-      this.form.telegram = this.user.Telegram || ''
-      this.form.resumeURL = this.user.ResumeURL || ''
+      this.form.name = this.user.name || ''
+      this.form.email = this.user.email || ''
+      this.form.specification = this.user.specification || ''
+      this.form.about = this.user.about || ''
+      this.form.telegram = this.user.telegram || ''
+      this.form.resumeURL = this.user.resume_url || ''
       await this.fetchAchievements()
     } catch (e) {
       this.notification = e.message || 'Ошибка'
@@ -185,42 +191,106 @@ export default {
       localStorage.removeItem('token')
       this.$router.push('/auth')
     },
-    onPhotoChange(e) {
+    async onPhotoChange(e) {
       const file = e.target.files[0]
       if (!file) return
       this.photoFile = file
-      const reader = new FileReader()
-      reader.onload = e => {
-        this.photoPreview = e.target.result
+      this.photoPreview = URL.createObjectURL(file)
+      // Загружаем фото на backend
+      const token = localStorage.getItem('token')
+      const formData = new FormData()
+      formData.append('image', file)
+      const res = await fetch('/auth/api/upload_profile_image', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      })
+      if (res.ok) {
+        const data = await res.json()
+        this.user.photoURL = data.url || data.photoURL || ''
+      } else {
+        this.notification = 'Ошибка загрузки фото'
+        this.notificationType = 'error'
       }
-      reader.readAsDataURL(file)
     },
-    removePhoto() {
+    async removePhoto() {
       this.photoFile = null
       this.photoPreview = ''
-      this.form.resumeURL = ''
+      this.user.photoURL = ''
+      // Можно добавить удаление файла на backend, если нужно
+    },
+    async onResumeChange(e) {
+      const file = e.target.files[0]
+      if (!file || file.type !== 'application/pdf') {
+        this.notification = 'Загрузите PDF-файл'
+        this.notificationType = 'error'
+        return
+      }
+      this.resumeFile = file
+      this.resumeName = file.name
+      // Загружаем резюме на backend
+      const token = localStorage.getItem('token')
+      const formData = new FormData()
+      formData.append('resume', file)
+      const res = await fetch('/auth/api/upload_resume', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      })
+      if (res.ok) {
+        const data = await res.json()
+        this.user.resumeURL = data.url || data.resumeURL || ''
+      } else {
+        this.notification = 'Ошибка загрузки резюме'
+        this.notificationType = 'error'
+      }
+    },
+    async removeResume() {
+      this.resumeFile = null
+      this.resumeName = ''
+      this.user.resumeURL = ''
+      // Можно добавить удаление файла на backend, если нужно
     },
     async saveProfile() {
       this.loading = true
       this.notification = ''
       try {
         const token = localStorage.getItem('token')
-        const body = {
-          Name: this.form.name,
-          Email: this.form.email,
-          Specification: this.form.specification,
-          About: this.form.about,
-          Telegram: this.form.telegram,
-          ResumeURL: this.form.resumeURL
+        let res;
+        if (this.photoFile) {
+          const formData = new FormData();
+          formData.append('Name', this.form.name);
+          formData.append('Email', this.form.email);
+          formData.append('Specification', this.form.specification);
+          formData.append('About', this.form.about);
+          formData.append('Telegram', this.form.telegram);
+          formData.append('ResumeURL', this.form.resumeURL);
+          formData.append('photo', this.photoFile);
+          res = await fetch('/auth/api/update_user_info', {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+        } else {
+          const body = {
+            Name: this.form.name,
+            Email: this.form.email,
+            Specification: this.form.specification,
+            About: this.form.about,
+            Telegram: this.form.telegram,
+            ResumeURL: this.form.resumeURL
+          };
+          res = await fetch('/auth/api/update_user_info', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(body)
+          });
         }
-        const res = await fetch('/auth/api/update_user_info', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(body)
-        })
         if (!res.ok) throw new Error('Ошибка сохранения профиля')
         this.notification = 'Профиль обновлён!'
         this.notificationType = 'success'
@@ -229,12 +299,12 @@ export default {
         })
         if (meRes.ok) {
           this.user = await meRes.json()
-          this.form.name = this.user.Name || ''
-          this.form.email = this.user.Email || ''
-          this.form.specification = this.user.Specification || ''
-          this.form.about = this.user.About || ''
-          this.form.telegram = this.user.Telegram || ''
-          this.form.resumeURL = this.user.ResumeURL || ''
+          this.form.name = this.user.name || ''
+          this.form.email = this.user.email || ''
+          this.form.specification = this.user.specification || ''
+          this.form.about = this.user.about || ''
+          this.form.telegram = this.user.telegram || ''
+          this.form.resumeURL = this.user.resume_url || ''
         }
       } catch (e) {
         this.notification = e.message || 'Ошибка'
@@ -247,8 +317,8 @@ export default {
       try {
         const token = localStorage.getItem('token')
         let url = '/auth/api/get_user_achievements';
-        if (this.user && this.user.ID) {
-          url += `?user_id=${this.user.ID}`;
+        if (this.user && (this.user.id || this.user.ID)) {
+          url += `?user_id=${this.user.id || this.user.ID}`;
         }
         const res = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` }
