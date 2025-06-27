@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"itam_auth/internal/models"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -29,6 +30,7 @@ const (
 		JOIN user_achievements ON achievements.id = user_achievements.achievement_id
 		WHERE user_achievements.user_id = $1
 		LIMIT $2 OFFSET $3`
+	saveUserAchievementQuery = `INSERT INTO user_achievements (id, user_id, achievement_id, awarded_at) VALUES ($1, $2, $3, $4)`
 )
 
 func validateAchievement(achievement models.Achievement) error {
@@ -67,7 +69,7 @@ func scanAchievement(row interface{ Scan(...any) error }) (models.Achievement, e
 	return achievement, nil
 }
 
-func (s *Storage) SaveAchievement(ctx context.Context, achievement models.Achievement) (uuid.UUID, error) {
+func (s *Storage) SaveAchievement(ctx context.Context, achievement models.Achievement, userID uuid.UUID) (uuid.UUID, error) {
 	if err := validateAchievement(achievement); err != nil {
 		log.Printf("Validation failed for achievement with ID %s: %v", achievement.ID, err)
 		return uuid.Nil, fmt.Errorf("invalid achievement data: %w", err)
@@ -96,6 +98,11 @@ func (s *Storage) SaveAchievement(ctx context.Context, achievement models.Achiev
 	if err != nil {
 		log.Printf("Failed to save achievement with ID %s: %v", achievement.ID, err)
 		return uuid.Nil, fmt.Errorf("failed to save achievement: %w", err)
+	}
+
+	if err := s.SaveUserAchievementTx(tx, userID, achievement.ID); err != nil {
+		log.Printf("Failed to save user_achievement for user %s and achievement %s: %v", userID, achievement.ID, err)
+		return uuid.Nil, fmt.Errorf("failed to save user_achievement: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -263,4 +270,9 @@ func (s *Storage) GetAchievementsByUserID(ctx context.Context, userID uuid.UUID,
 	}
 
 	return achievements, nil
+}
+
+func (s *Storage) SaveUserAchievementTx(tx *sql.Tx, userID, achievementID uuid.UUID) error {
+	_, err := tx.ExecContext(context.Background(), saveUserAchievementQuery, uuid.New(), userID, achievementID, time.Now())
+	return err
 }

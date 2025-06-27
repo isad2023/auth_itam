@@ -29,6 +29,28 @@ services:
       retries: 5
     volumes:
       - pg_data:/var/lib/postgresql/data
-    
+      - ./migrations:/migrations
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://backend:8080
+
+  migrator:
+    build:
+      context: .
+      dockerfile: migrator.Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pg_data:

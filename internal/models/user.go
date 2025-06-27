@@ -46,17 +46,17 @@ func (s Specification) Value() (driver.Value, error) {
 }
 
 type User struct {
-	ID            uuid.UUID
-	Name          string
-	Email         string
-	Telegram      *string
-	PasswordHash  string
-	PhotoURL      *string
-	About         *string
-	ResumeURL     *string
-	Specification Specification
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            uuid.UUID      `json:"ID"`
+	Name          string         `json:"Name"`
+	Email         string         `json:"Email"`
+	Telegram      *string        `json:"Telegram"`
+	PasswordHash  string         `json:"PasswordHash"`
+	PhotoURL      *string        `json:"PhotoURL"`
+	About         *string        `json:"About"`
+	ResumeURL     *string        `json:"ResumeURL"`
+	Specification Specification `json:"Specification"`
+	CreatedAt     time.Time      `json:"CreatedAt"`
+	UpdatedAt     time.Time      `json:"UpdatedAt"`
 }
 
 func (u *User) GetAdminServices(userRoles []UserRole, roles []Role, rolePermissions []RolePermission, permissions []Permission) []string {

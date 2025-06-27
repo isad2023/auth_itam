@@ -347,6 +347,7 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 			Specification: updateData.Specification,
 			About:         updateData.About,
 			PhotoURL:      updateData.PhotoURL,
+			Telegram:      updateData.Telegram,
 			ResumeURL:     updateData.ResumeURL,
 			UpdatedAt:     time.Now(),
 		}

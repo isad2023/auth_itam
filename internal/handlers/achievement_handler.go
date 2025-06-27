@@ -52,13 +52,31 @@ func CreateAchievement(storage *database.Storage) gin.HandlerFunc {
 			return
 		}
 
+		if achievement.UserID == uuid.Nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "user_id is required in achievement"})
+			return
+		}
+
 		achievement.ID = uuid.New()
 		achievement.CreatedAt = time.Now()
 
 		ctx := c.Request.Context()
-		if _, err := storage.SaveAchievement(ctx, achievement); err != nil {
+		if _, err := storage.SaveAchievement(ctx, achievement, achievement.UserID); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save achievement"})
 			return
+		}
+
+		// Создаём уведомление для пользователя
+		notification := models.Notification{
+			ID:        uuid.New(),
+			UserID:    achievement.UserID,
+			Content:   fmt.Sprintf("Добавлено новое достижение: %s", achievement.Title),
+			IsRead:    false,
+			CreatedAt: time.Now(),
+		}
+		if _, err := storage.SaveNotification(ctx, notification); err != nil {
+			// Не прерываем выполнение, просто логируем ошибку
+			fmt.Printf("Failed to create notification: %v\n", err)
 		}
 
 		c.JSON(http.StatusCreated, gin.H{"message": "Achievement created successfully", "id": achievement.ID})
