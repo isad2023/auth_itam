@@ -9,16 +9,21 @@ import (
 	"log"
 )
 
-// @title LiveCode API
+// @title ITaM Auth API
 // @version 1.0
-// @description ITaM API
+// @description API для системы аутентификации и управления пользователями ITaM
+// @description Включает функциональность для работы с пользователями, достижениями, запросами, уведомлениями и загрузкой файлов
 // @host 109.73.202.151:8080
 // @BasePath /
-// @schemes http
+// @schemes http https
 // @securityDefinitions.oauth2.password OAuth2Password
 // @tokenUrl /auth/api/login
 // @in header
 // @name Authorization
+// @contact.name ITaM Support
+// @contact.email support@itam.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
 const (
 	serverPort = ":8080"
 )
@@ -46,7 +51,7 @@ func main() {
 	defer storage.Close()
 	log.Println("Database successfully connected.")
 
-	router := routes.SetupRoutes(storage, appConfig.JwtSecretKey)
+	router := routes.SetupRoutes(storage, appConfig.JwtSecretKey, appConfig)
 	log.Printf("Starting server on port %s", serverPort)
 	if err := router.Run(serverPort); err != nil {
 		fmt.Printf("Error starting server: %v", err)

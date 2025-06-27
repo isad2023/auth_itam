@@ -17,8 +17,10 @@ definitions:
   handlers.LoginRequest:
     properties:
       email:
+        example: john@example.com
         type: string
       password:
+        example: password123
         type: string
     required:
     - email
@@ -27,13 +29,17 @@ definitions:
   handlers.RegisterRequest:
     properties:
       email:
+        example: john@example.com
         type: string
       name:
+        example: John Doe
         type: string
       password:
+        example: password123
         type: string
     required:
     - email
+    - name
     - password
     type: object
   handlers.UpdateRequestStatusRequest:
@@ -49,18 +55,78 @@ definitions:
   models.Achievement:
     properties:
       approved:
+        example: true
         type: boolean
-      createdAt:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
         type: string
-      createdBy:
+      created_by:
+        example: 123
         type: integer
       description:
+        example: Successfully completed first project
         type: string
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      image_url:
+        example: /uploads/achievement.jpg
         type: string
       points:
+        example: 100
         type: number
       title:
+        example: First Project
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      details:
+        example: Only JPEG, PNG, GIF, WebP formats are allowed
+        type: string
+      error:
+        example: Invalid file format
+        type: string
+    type: object
+  models.FileInfo:
+    properties:
+      fileName:
+        example: 550e8400-e29b-41d4-a716-446655440000_1234567890.jpg
+        type: string
+      fileSize:
+        example: 12345
+        type: integer
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      mimeType:
+        example: image/jpeg
+        type: string
+      originalName:
+        example: profile.jpg
+        type: string
+      url:
+        example: /uploads/550e8400-e29b-41d4-a716-446655440000_1234567890.jpg
+        type: string
+    type: object
+  models.FileUploadResponse:
+    properties:
+      file:
+        $ref: '#/definitions/models.FileInfo'
+      message:
+        example: File uploaded successfully
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      expires_in:
+        example: 2592000
+        type: integer
+      token_type:
+        example: Bearer
         type: string
     type: object
   models.Notification:
@@ -75,6 +141,14 @@ definitions:
         type: boolean
       userID:
         type: string
+    type: object
+  models.RegisterResponse:
+    properties:
+      message:
+        example: User registered successfully
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
     type: object
   models.Specification:
     enum:
@@ -92,29 +166,44 @@ definitions:
     - Developer
     - Designer
     - Manager
+  models.SuccessResponse:
+    properties:
+      message:
+        example: File deleted successfully
+        type: string
+    type: object
   models.User:
     properties:
       about:
+        example: Software developer with 5 years of experience
         type: string
-      createdAt:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
         type: string
       email:
+        example: john@example.com
         type: string
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       name:
+        example: John Doe
         type: string
-      passwordHash:
+      photo_url:
+        example: /uploads/profile.jpg
         type: string
-      photoURL:
-        type: string
-      resumeURL:
+      resume_url:
+        example: /uploads/resume.pdf
         type: string
       specification:
-        $ref: '#/definitions/models.Specification'
+        allOf:
+        - $ref: '#/definitions/models.Specification'
+        example: Backend
       telegram:
+        example: '@johndoe'
         type: string
-      updatedAt:
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
         type: string
     type: object
   models.UserRole:
@@ -129,8 +218,10 @@ definitions:
 host: 109.73.202.151:8080
 info:
   contact: {}
-  description: ITaM API
-  title: LiveCode API
+  description: |-
+    API для системы аутентификации и управления пользователями ITaM
+    Включает функциональность для работы с пользователями, достижениями, запросами, уведомлениями и загрузкой файлов
+  title: ITaM Auth API
   version: "1.0"
 paths:
   /auth/api/create_achievement:
@@ -286,6 +377,47 @@ paths:
       summary: Удалить достижение
       tags:
       - Achievements
+  /auth/api/delete_file/{file_id}:
+    delete:
+      description: Удаляет загруженный файл (только владелец файла может его удалить)
+      parameters:
+      - description: File ID (UUID)
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Invalid file ID
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Access denied
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: Удалить файл
+      tags:
+      - Files
   /auth/api/delete_notification:
     delete:
       description: Удаляет уведомление по ID
@@ -621,9 +753,9 @@ paths:
       - Requests
   /auth/api/get_user/{user_id}:
     get:
-      description: Возвращает данные текущего пользователя
+      description: Возвращает данные пользователя по ID
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: user_id
         required: true
@@ -638,15 +770,11 @@ paths:
         "400":
           description: Invalid user ID
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Получить информацию о пользователе
       tags:
       - User
@@ -695,6 +823,31 @@ paths:
       summary: Получить достижения пользователя
       tags:
       - Achievements
+  /auth/api/get_user_files:
+    get:
+      description: Возвращает список всех файлов, загруженных пользователем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user files
+          schema:
+            items:
+              $ref: '#/definitions/models.FileInfo'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: Получить список файлов пользователя
+      tags:
+      - Files
   /auth/api/get_user_properties:
     get:
       description: Возвращает список свойств текущего пользователя
@@ -760,26 +913,19 @@ paths:
         "200":
           description: JWT token
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.LoginResponse'
         "400":
           description: Invalid request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Логин пользователя
       tags:
       - User
@@ -843,21 +989,15 @@ paths:
         "201":
           description: Success message with user data
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.RegisterResponse'
         "400":
           description: Invalid request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Регистрация нового пользователя
       tags:
       - User
@@ -1019,8 +1159,151 @@ paths:
       summary: Обновить информацию пользователя
       tags:
       - User
+  /auth/api/upload_achievement_image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает изображение для достижения и обновляет поле image_url
+      parameters:
+      - description: Achievement image file (JPEG, PNG, GIF, WebP, max 10MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Achievement ID (UUID)
+        in: formData
+        name: achievement_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with file info
+          schema:
+            $ref: '#/definitions/models.FileUploadResponse'
+        "400":
+          description: Invalid file or request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: Загрузить изображение достижения
+      tags:
+      - Files
+  /auth/api/upload_profile_image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает изображение профиля для текущего пользователя и обновляет
+        поле photo_url
+      parameters:
+      - description: Profile image file (JPEG, PNG, GIF, WebP, max 10MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with file info
+          schema:
+            $ref: '#/definitions/models.FileUploadResponse'
+        "400":
+          description: Invalid file or request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: Загрузить изображение профиля
+      tags:
+      - Files
+  /auth/api/upload_resume:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает резюме для текущего пользователя и обновляет поле resume_url
+      parameters:
+      - description: Resume file (PDF, DOC, DOCX, max 10MB)
+        in: formData
+        name: resume
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with file info
+          schema:
+            $ref: '#/definitions/models.FileUploadResponse'
+        "400":
+          description: Invalid file or request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - OAuth2Password: []
+      summary: Загрузить резюме пользователя
+      tags:
+      - Files
+  /uploads/{filename}:
+    get:
+      description: Возвращает загруженный файл по имени
+      parameters:
+      - description: File name (UUID format)
+        in: path
+        name: filename
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: file
+        "400":
+          description: Invalid filename
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: File not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить файл
+      tags:
+      - Files
 schemes:
 - http
+- https
 securityDefinitions:
   OAuth2Password:
     flow: password

@@ -255,6 +255,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/api/delete_file/{file_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Удаляет загруженный файл (только владелец файла может его удалить)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Удалить файл",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "File ID (UUID)",
+                        "name": "file_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "File not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/api/delete_notification": {
             "delete": {
                 "security": [
@@ -771,7 +835,7 @@ const docTemplate = `{
         },
         "/auth/api/get_user/{user_id}": {
             "get": {
-                "description": "Возвращает данные текущего пользователя",
+                "description": "Возвращает данные пользователя по ID",
                 "produces": [
                     "application/json"
                 ],
@@ -782,7 +846,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "User ID (UUID)",
                         "name": "user_id",
                         "in": "path",
                         "required": true
@@ -798,19 +862,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -880,6 +938,46 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/api/get_user_files": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Возвращает список всех файлов, загруженных пользователем",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Получить список файлов пользователя",
+                "responses": {
+                    "200": {
+                        "description": "List of user files",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FileInfo"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -988,35 +1086,25 @@ const docTemplate = `{
                     "200": {
                         "description": "JWT token",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1116,28 +1204,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Success message with user data",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.RegisterResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1391,6 +1470,225 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/api/upload_achievement_image": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Загружает изображение для достижения и обновляет поле image_url",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Загрузить изображение достижения",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Achievement image file (JPEG, PNG, GIF, WebP, max 10MB)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Achievement ID (UUID)",
+                        "name": "achievement_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message with file info",
+                        "schema": {
+                            "$ref": "#/definitions/models.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file or request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/api/upload_profile_image": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Загружает изображение профиля для текущего пользователя и обновляет поле photo_url",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Загрузить изображение профиля",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile image file (JPEG, PNG, GIF, WebP, max 10MB)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message with file info",
+                        "schema": {
+                            "$ref": "#/definitions/models.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file or request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/api/upload_resume": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Загружает резюме для текущего пользователя и обновляет поле resume_url",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Загрузить резюме пользователя",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Resume file (PDF, DOC, DOCX, max 10MB)",
+                        "name": "resume",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message with file info",
+                        "schema": {
+                            "$ref": "#/definitions/models.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file or request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/uploads/{filename}": {
+            "get": {
+                "description": "Возвращает загруженный файл по имени",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Получить файл",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "File name (UUID format)",
+                        "name": "filename",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File content",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid filename",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "File not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1423,10 +1721,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john@example.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password123"
                 }
             }
         },
@@ -1434,17 +1734,21 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "name",
                 "password"
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john@example.com"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "John Doe"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password123"
                 }
             }
         },
@@ -1467,25 +1771,107 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "approved": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
-                "createdAt": {
-                    "type": "string"
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
                 },
-                "createdBy": {
-                    "type": "integer"
+                "created_by": {
+                    "type": "integer",
+                    "example": 123
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Successfully completed first project"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "image_url": {
+                    "type": "string",
+                    "example": "/uploads/achievement.jpg"
                 },
                 "points": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 100
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "First Project"
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "example": "Only JPEG, PNG, GIF, WebP formats are allowed"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Invalid file format"
+                }
+            }
+        },
+        "models.FileInfo": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000_1234567890.jpg"
+                },
+                "fileSize": {
+                    "type": "integer",
+                    "example": 12345
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "mimeType": {
+                    "type": "string",
+                    "example": "image/jpeg"
+                },
+                "originalName": {
+                    "type": "string",
+                    "example": "profile.jpg"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "/uploads/550e8400-e29b-41d4-a716-446655440000_1234567890.jpg"
+                }
+            }
+        },
+        "models.FileUploadResponse": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "$ref": "#/definitions/models.FileInfo"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "File uploaded successfully"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                },
+                "expires_in": {
+                    "type": "integer",
+                    "example": 2592000
+                },
+                "token_type": {
+                    "type": "string",
+                    "example": "Bearer"
                 }
             }
         },
@@ -1509,6 +1895,18 @@ const docTemplate = `{
                 }
             }
         },
+        "models.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "User registered successfully"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
         "models.Specification": {
             "type": "string",
             "enum": [
@@ -1528,41 +1926,61 @@ const docTemplate = `{
                 "Manager"
             ]
         },
+        "models.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "File deleted successfully"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
                 "about": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Software developer with 5 years of experience"
                 },
-                "createdAt": {
-                    "type": "string"
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "john@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "John Doe"
                 },
-                "passwordHash": {
-                    "type": "string"
+                "photo_url": {
+                    "type": "string",
+                    "example": "/uploads/profile.jpg"
                 },
-                "photoURL": {
-                    "type": "string"
-                },
-                "resumeURL": {
-                    "type": "string"
+                "resume_url": {
+                    "type": "string",
+                    "example": "/uploads/resume.pdf"
                 },
                 "specification": {
-                    "$ref": "#/definitions/models.Specification"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Specification"
+                        }
+                    ],
+                    "example": "Backend"
                 },
                 "telegram": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "@johndoe"
                 },
-                "updatedAt": {
-                    "type": "string"
+                "updated_at": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
@@ -1593,11 +2011,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "109.73.202.151:8080",
+    Host:             "109.73.202.151:8080",
 	BasePath:         "/",
-	Schemes:          []string{"http"},
-	Title:            "LiveCode API",
-	Description:      "ITaM API",
+	Schemes:          []string{"http", "https"},
+	Title:            "ITaM Auth API",
+	Description:      "API для системы аутентификации и управления пользователями ITaM\nВключает функциональность для работы с пользователями, достижениями, запросами, уведомлениями и загрузкой файлов",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
