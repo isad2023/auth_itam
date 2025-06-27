@@ -19,6 +19,7 @@
 
 <script>
 import Notification from '../components/Notification.vue'
+import { apiUrl } from '../api.js'
 
 export default {
   name: 'RegisterView',
@@ -38,7 +39,7 @@ export default {
       this.loading = true
       this.notification = ''
       try {
-        const res = await fetch('/auth/api/register', {
+        const res = await fetch(apiUrl('/auth/api/register'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: this.name, email: this.email, password: this.password })

@@ -19,6 +19,7 @@
 
 <script>
 import Notification from '../components/Notification.vue'
+import { apiUrl } from '../api.js'
 
 export default {
   name: 'AchievementsView',
@@ -30,17 +31,38 @@ export default {
       description: '',
       points: 0,
       notification: '',
-      notificationType: 'info'
+      notificationType: 'info',
+      user_id: ''
     }
   },
   async mounted() {
+    await this.fetchUserId()
     await this.fetchAchievements()
   },
   methods: {
+    async fetchUserId() {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch(apiUrl('/auth/api/me'), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (!res.ok) throw new Error('Ошибка получения пользователя')
+        const user = await res.json()
+        this.user_id = user.id || user.ID
+        console.log('user_id получен из /auth/api/me:', this.user_id)
+      } catch (e) {
+        this.notification = e.message || 'Ошибка'
+        this.notificationType = 'error'
+      }
+    },
     async fetchAchievements() {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/auth/api/get_user_achievements', {
+        let url = '/auth/api/get_user_achievements'
+        if (this.user_id) {
+          url += `?user_id=${this.user_id}`
+        }
+        const res = await fetch(apiUrl(url), {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!res.ok) throw new Error('Ошибка получения достижений')
@@ -52,20 +74,35 @@ export default {
     },
     async createAchievement() {
       try {
+        if (!this.user_id) {
+          this.notification = 'Не удалось определить пользователя (user_id)';
+          this.notificationType = 'error';
+          return;
+        }
+        console.log('user_id перед отправкой:', this.user_id)
         const token = localStorage.getItem('token')
-        const res = await fetch('/auth/api/create_achievement', {
+        const body = {
+          title: this.title,
+          description: this.description || "",
+          points: Number(this.points),
+          user_id: this.user_id
+        }
+        const res = await fetch(apiUrl('/auth/api/create_achievement'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            title: this.title,
-            description: this.description,
-            points: this.points
-          })
+          body: JSON.stringify(body)
         })
-        if (!res.ok) throw new Error('Ошибка создания достижения')
+        if (!res.ok) {
+          let errMsg = 'Ошибка создания достижения'
+          try {
+            const err = await res.json()
+            if (err && err.error) errMsg += ': ' + err.error
+          } catch {}
+          throw new Error(errMsg)
+        }
         this.notification = 'Достижение добавлено!'
         this.notificationType = 'success'
         this.title = this.description = ''
@@ -102,4 +139,4 @@ form {
     &:hover { background: #1976d2; }
   }
 }
-</style> 
+</style>

@@ -7,12 +7,12 @@
         <h2 class="section-title">ЛИЧНАЯ ИНФОРМАЦИЯ</h2>
         <div class="info-flex">
           <div class="profile-avatar-block">
-            <img v-if="photoPreview || user?.photoURL" :src="photoPreview || user.photoURL" class="profile-avatar" alt="avatar" />
+            <img v-if="avatarUrl" :src="avatarUrl" class="profile-avatar" alt="avatar" />
             <div v-else class="profile-avatar profile-avatar-placeholder">{{ initials }}</div>
             <input ref="fileInput" type="file" accept="image/*" @change="onPhotoChange" style="display:none" />
             <div class="profile-avatar-actions">
               <button class="add-photo-btn" @click="$refs.fileInput.click()">Добавить фото +</button>
-              <button class="delete-photo-btn" v-if="user?.photoURL || photoPreview" @click="removePhoto">Удалить</button>
+              <button class="delete-photo-btn" v-if="user?.photo_url || photoPreview" @click="removePhoto">Удалить</button>
             </div>
           </div>
           <form class="profile-form" @submit.prevent="saveProfile">
@@ -37,8 +37,8 @@
             <label>Резюме (PDF)
               <input type="file" accept="application/pdf" @change="onResumeChange" />
               <span v-if="resumeName">{{ resumeName }}</span>
-              <a v-if="user?.resumeURL" :href="user.resumeURL" target="_blank">Скачать резюме</a>
-              <button v-if="user?.resumeURL" type="button" @click="removeResume">Удалить</button>
+              <a v-if="resumeUrl" :href="resumeUrl" target="_blank">Скачать резюме</a>
+              <button v-if="user?.resume_url" type="button" @click="removeResume">Удалить</button>
             </label>
             <div class="form-actions">
               <button type="submit" class="save-btn" :disabled="!isChanged || loading">Сохранить</button>
@@ -55,6 +55,9 @@
           <form class="ach-form" @submit.prevent="createAchievement">
             <label>Достижение <span class="required">*</span>
               <input v-model="newAch.title" required />
+            </label>
+            <label>Описание
+              <input v-model="newAch.description" />
             </label>
             <label>Дата <span class="required">*</span>
               <input v-model="newAch.date" type="date" required />
@@ -116,6 +119,7 @@
 
 <script>
 import Notification from '../components/Notification.vue'
+import { apiUrl } from '../api.js'
 
 export default {
   name: 'ProfileView',
@@ -129,7 +133,7 @@ export default {
         about: '',
         telegram: '',
         specification: '',
-        resumeURL: ''
+        resume_url: ''
       },
       roles: ['Project manager', 'Developer', 'Designer', 'QA', 'DevOps'],
       notification: '',
@@ -141,7 +145,7 @@ export default {
       resumeName: '',
       achievements: [],
       showAchForm: false,
-      newAch: { event: '', title: '', date: '', points: '' },
+      newAch: { event: '', title: '', description: '', date: '', points: '' },
       notifications: [
         { content: 'Новое достижение добавлено!', isRead: false },
         { content: 'Ваш профиль обновлён', isRead: true }
@@ -163,13 +167,28 @@ export default {
     initials() {
       if (!this.form.name) return ''
       return this.form.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+    },
+    avatarUrl() {
+      if (this.photoPreview) return this.photoPreview
+      if (this.user && this.user.photo_url) {
+        if (this.user.photo_url.startsWith('http')) return this.user.photo_url
+        return 'http://localhost:8080' + this.user.photo_url
+      }
+      return ''
+    },
+    resumeUrl() {
+      if (this.user && this.user.resume_url) {
+        if (this.user.resume_url.startsWith('http')) return this.user.resume_url
+        return 'http://localhost:8080' + this.user.resume_url
+      }
+      return ''
     }
   },
   async mounted() {
     try {
       const token = localStorage.getItem('token')
       if (!token) throw new Error('Не авторизован')
-      const res = await fetch('/auth/api/me', {
+      const res = await fetch(apiUrl('/auth/api/me'), {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!res.ok) throw new Error('Ошибка получения профиля')
@@ -179,7 +198,7 @@ export default {
       this.form.specification = this.user.specification || ''
       this.form.about = this.user.about || ''
       this.form.telegram = this.user.telegram || ''
-      this.form.resumeURL = this.user.resume_url || ''
+      this.form.resume_url = this.user.resume_url || ''
       await this.fetchAchievements()
     } catch (e) {
       this.notification = e.message || 'Ошибка'
@@ -200,23 +219,36 @@ export default {
       const token = localStorage.getItem('token')
       const formData = new FormData()
       formData.append('image', file)
-      const res = await fetch('/auth/api/upload_profile_image', {
+      const res = await fetch(apiUrl('/auth/api/upload_profile_image'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       })
       if (res.ok) {
-        const data = await res.json()
-        this.user.photoURL = data.url || data.photoURL || ''
+        // После загрузки фото — обновить профиль пользователя
+        const meRes = await fetch(apiUrl('/auth/api/me'), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (meRes.ok) {
+          this.user = await meRes.json()
+          this.photoPreview = ''
+        }
+        this.notification = 'Фото успешно загружено!'
+        this.notificationType = 'success'
       } else {
-        this.notification = 'Ошибка загрузки фото'
+        let errMsg = 'Ошибка загрузки фото'
+        try {
+          const err = await res.json()
+          if (err && err.error) errMsg += ': ' + err.error
+        } catch {}
+        this.notification = errMsg
         this.notificationType = 'error'
       }
     },
     async removePhoto() {
       this.photoFile = null
       this.photoPreview = ''
-      this.user.photoURL = ''
+      this.user.photo_url = ''
       // Можно добавить удаление файла на backend, если нужно
     },
     async onResumeChange(e) {
@@ -232,14 +264,21 @@ export default {
       const token = localStorage.getItem('token')
       const formData = new FormData()
       formData.append('resume', file)
-      const res = await fetch('/auth/api/upload_resume', {
+      const res = await fetch(apiUrl('/auth/api/upload_resume'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       })
       if (res.ok) {
-        const data = await res.json()
-        this.user.resumeURL = data.url || data.resumeURL || ''
+        // После загрузки резюме — обновить профиль пользователя
+        const meRes = await fetch(apiUrl('/auth/api/me'), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (meRes.ok) {
+          this.user = await meRes.json()
+        }
+        this.notification = 'Резюме успешно загружено!'
+        this.notificationType = 'success'
       } else {
         this.notification = 'Ошибка загрузки резюме'
         this.notificationType = 'error'
@@ -248,7 +287,7 @@ export default {
     async removeResume() {
       this.resumeFile = null
       this.resumeName = ''
-      this.user.resumeURL = ''
+      this.user.resume_url = ''
       // Можно добавить удаление файла на backend, если нужно
     },
     async saveProfile() {
@@ -256,45 +295,30 @@ export default {
       this.notification = ''
       try {
         const token = localStorage.getItem('token')
-        let res;
-        if (this.photoFile) {
-          const formData = new FormData();
-          formData.append('Name', this.form.name);
-          formData.append('Email', this.form.email);
-          formData.append('Specification', this.form.specification);
-          formData.append('About', this.form.about);
-          formData.append('Telegram', this.form.telegram);
-          formData.append('ResumeURL', this.form.resumeURL);
-          formData.append('photo', this.photoFile);
-          res = await fetch('/auth/api/update_user_info', {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            body: formData
-          });
-        } else {
-          const body = {
-            Name: this.form.name,
-            Email: this.form.email,
-            Specification: this.form.specification,
-            About: this.form.about,
-            Telegram: this.form.telegram,
-            ResumeURL: this.form.resumeURL
-          };
-          res = await fetch('/auth/api/update_user_info', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(body)
-          });
-        }
+        const body = {
+          id: this.user.id || this.user.ID,
+          name: this.form.name,
+          email: this.form.email,
+          specification: this.form.specification,
+          about: this.form.about || '',
+          telegram: this.form.telegram || '',
+          photo_url: this.user.photo_url || '',
+          resume_url: this.user.resume_url || '',
+          created_at: this.user.created_at || this.user.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        const res = await fetch(apiUrl('/auth/api/update_user_info'), {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
         if (!res.ok) throw new Error('Ошибка сохранения профиля')
         this.notification = 'Профиль обновлён!'
         this.notificationType = 'success'
-        const meRes = await fetch('/auth/api/me', {
+        const meRes = await fetch(apiUrl('/auth/api/me'), {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (meRes.ok) {
@@ -304,7 +328,7 @@ export default {
           this.form.specification = this.user.specification || ''
           this.form.about = this.user.about || ''
           this.form.telegram = this.user.telegram || ''
-          this.form.resumeURL = this.user.resume_url || ''
+          this.form.resume_url = this.user.resume_url || ''
         }
       } catch (e) {
         this.notification = e.message || 'Ошибка'
@@ -320,7 +344,7 @@ export default {
         if (this.user && (this.user.id || this.user.ID)) {
           url += `?user_id=${this.user.id || this.user.ID}`;
         }
-        const res = await fetch(url, {
+        const res = await fetch(apiUrl(url), {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!res.ok) throw new Error('Ошибка получения достижений')
@@ -334,12 +358,16 @@ export default {
     async createAchievement() {
       try {
         const token = localStorage.getItem('token')
+        const user_id = this.user?.id || this.user?.ID
+        console.log('user_id перед отправкой:', user_id)
         const body = {
           title: this.newAch.title,
+          description: this.newAch.description || '',
           points: this.newAch.points,
-          user_id: this.user.ID
+          user_id,
+          created_at: new Date().toISOString()
         }
-        const res = await fetch('/auth/api/create_achievement', {
+        const res = await fetch(apiUrl('/auth/api/create_achievement'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -351,7 +379,7 @@ export default {
         this.notification = 'Достижение добавлено!'
         this.notificationType = 'success'
         this.showAchForm = false
-        this.newAch = { event: '', title: '', date: '', points: '' }
+        this.newAch = { event: '', title: '', description: '', date: '', points: '' }
         await this.fetchAchievements()
       } catch (e) {
         this.notification = e.message || 'Ошибка'

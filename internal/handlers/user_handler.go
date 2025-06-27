@@ -362,6 +362,52 @@ func UpdateUserInfo(storage *database.Storage) gin.HandlerFunc {
 			return
 		}
 
+		// --- АВТОМАТИЧЕСКАЯ ВЫДАЧА ДОСТИЖЕНИЯ ЗА ЗАПОЛНЕНИЕ ПРОФИЛЯ ---
+		log.Printf("[DEBUG] Проверка профиля для авто-достижения: Name='%s', Email='%s', Specification='%s', About='%v', Telegram='%v', PhotoURL='%v', ResumeURL='%v'", user.Name, user.Email, user.Specification, user.About, user.Telegram, user.PhotoURL, user.ResumeURL)
+		if user.Name != "" && user.Email != "" && user.Specification != "" &&
+			user.About != nil && *user.About != "" &&
+			user.Telegram != nil && *user.Telegram != "" &&
+			user.PhotoURL != nil && *user.PhotoURL != "" &&
+			user.ResumeURL != nil && *user.ResumeURL != "" {
+
+			// Проверяем, не выдавалось ли уже это достижение
+			achievements, err := storage.GetAchievementsByUserID(ctx, user.ID, 100, 0)
+			if err == nil {
+				alreadyGiven := false
+				for _, ach := range achievements {
+					if ach.Title == "Профиль полностью заполнен" {
+						alreadyGiven = true
+						break
+					}
+				}
+				if !alreadyGiven {
+					desc := "Вы заполнили все поля профиля!"
+					achievement := models.Achievement{
+						ID:          uuid.New(),
+						UserID:      user.ID,
+						Title:       "Профиль полностью заполнен",
+						Description: &desc,
+						Points:      50,
+						Approved:    true,
+						CreatedBy:   0,
+						CreatedAt:   time.Now(),
+					}
+					_, _ = storage.SaveAchievement(ctx, achievement, user.ID)
+
+					// Создаём уведомление для пользователя
+					notification := models.Notification{
+						ID:        uuid.New(),
+						UserID:    user.ID,
+						Content:   "Поздравляем! Вы получили достижение: 'Профиль полностью заполнен'",
+						IsRead:    false,
+						CreatedAt: time.Now(),
+					}
+					_, _ = storage.SaveNotification(ctx, notification)
+				}
+			}
+		}
+		// --- КОНЕЦ БЛОКА ---
+
 		c.JSON(http.StatusOK, gin.H{"message": "User information updated successfully"})
 	}
 }

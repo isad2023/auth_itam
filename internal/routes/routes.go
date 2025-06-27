@@ -25,7 +25,9 @@ func SetupRoutes(storage *database.Storage, hmacSecret string, cfg *config.AppCo
 	config := cors.Config{
 		AllowOrigins: []string{
 			"http://localhost:3000",
+			"http://localhost:5173",
 			"http://109.73.202.151:3000",
+			"http://109.73.202.151:5173",
 			"http://localhost:8080",
 			"http://109.73.202.151:8080",
 			"http://localhost:8080/auth/swagger",

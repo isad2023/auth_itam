@@ -1801,6 +1801,10 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "First Project"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
@@ -2011,7 +2015,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-    Host:             "109.73.202.151:8080",
+	Host:             "109.73.202.151:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
 	Title:            "ITaM Auth API",

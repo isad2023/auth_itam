@@ -13,6 +13,7 @@
 
 <script>
 import Notification from '../components/Notification.vue'
+import { apiUrl } from '../api.js'
 
 export default {
   name: 'NotificationsView',
@@ -33,7 +34,7 @@ export default {
         const token = localStorage.getItem('token')
         // Получаем user_id из профиля (если есть в localStorage)
         let userId = null;
-        const meRes = await fetch('/auth/api/me', {
+        const meRes = await fetch(apiUrl('/auth/api/me'), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (meRes.ok) {
@@ -42,7 +43,7 @@ export default {
         }
         if (!userId) throw new Error('Не удалось получить user_id');
         const url = `/auth/api/get_all_notifications?user_id=${userId}`;
-        const res = await fetch(url, {
+        const res = await fetch(apiUrl(url), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Ошибка получения уведомлений');
@@ -59,4 +60,4 @@ export default {
 <style lang="scss" scoped>
 ul { padding-left: 0; list-style: none; }
 li { margin-bottom: 8px; }
-</style> 
+</style>

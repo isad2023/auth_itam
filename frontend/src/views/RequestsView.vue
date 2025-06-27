@@ -18,6 +18,7 @@
 
 <script>
 import Notification from '../components/Notification.vue'
+import { apiUrl } from '../api.js'
 
 export default {
   name: 'RequestsView',
@@ -38,7 +39,7 @@ export default {
     async fetchRequests() {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/auth/api/get_all_user_requests', {
+        const res = await fetch(apiUrl('/auth/api/get_all_user_requests'), {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (!res.ok) throw new Error('Ошибка получения запросов')
@@ -51,7 +52,7 @@ export default {
     async createRequest() {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/auth/api/create_user_request', {
+        const res = await fetch(apiUrl('/auth/api/create_user_request'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
