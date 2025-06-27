@@ -19,10 +19,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/auth': {
-        target: apiUrl,
+      '/auth/api': {
+        target: 'http://109.73.202.151:8080',
         changeOrigin: true,
-        secure: false,
+        rewrite: path => path.replace(/^\/auth\/api/, '/auth/api'),
       },
     },
   },
